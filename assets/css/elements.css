@@ -1,0 +1,23 @@
+.--dark table[data-type="spectable-v1"] {
+  background: hsl(197deg 2.83% 25.21%);
+  border-top: 4px solid #cacaff;
+    color: white;
+}
+table[data-type="spectable-v1"]{
+  & {
+    border:0;
+    border-color:transparent;
+    border-top: 4px solid #ff30b0;
+    background: hsl(197deg 11% 11%);
+    color: white;
+    font-size: 1rem;
+    border-radius: 6px;
+    padding: 4px;
+  }
+  li {
+    margin-bottom: 0.5em;
+  }
+  tr:nth-child(2){
+    display: none;
+   }
+}

@@ -1,0 +1,255 @@
+<file src="widget/Feed.html"></file>
+<file src="markups/post.html"></file>
+
+<!-- MESSAGES -->
+<b:defaultmarkups>
+  <b:defaultmarkup type='Common'>
+    
+    <b:includable id="@wg-PostHomepage">
+      <!-- # wg-PostHomepage -->
+      [ .wg-PostHomepage
+        [a expr:href="data:post.url" .post-thumbnail-link
+          [ .thumbnail
+            <b:with var="thumbnail" value='data:post.thumbnailUrl OR data:post.featuredImage ? "background:url(" + data:post.featuredImage + ")" : ""'>
+              <b:class name="obsoletes" cond="!data:thumbnail"/>
+              [ expr:style="data:thumbnail" .post-image]
+            </b:with>
+          ]
+        ]
+        [ .description
+          [a expr:href='data:post.url + (data:blog.isMobileRequest ? "?m=1" : "")' .post-title
+            <data:post.title/>
+          ]
+          [time .post-date
+            <b:eval expr='data:post.date format "dd.MM.yy"'/>
+          ]
+        ]
+      ]
+    </b:includable>
+    
+    <b:includable id='@messages/404'>
+      Page not found. It might have been moved or deleted.
+    </b:includable>
+    <b:includable id='@messages/no-search-results'>
+      There's no item match for your search. Try another keywords or request a post.
+    </b:includable>
+    <b:includable id='@labels' var='params'>
+      <b:if cond='data:global.isLocal'>
+        <b:switch var='data:params.key'>
+          <b:case value='keepAwake'/>Layar tetap menyala
+          <b:case value='showLyric'/>Lirik saja
+          <b:case value='guitarChord'/>Chord gitar
+        </b:switch>
+      <b:else/>
+        <b:switch var='data:params.key'>
+          <b:case value='keepAwake'/>Keep screen awake
+          <b:case value='showLyric'/>Show lyric only
+          <b:case value='guitarChord'/>Guitar Chord
+        </b:switch>
+      </b:if>
+    </b:includable>
+      
+    <b:includable id='label-alias'>
+      
+      <b:if cond="data:global.isLocal">
+
+        <b:switch var='data:name'>
+          <b:case value='L1'/>Kartun Indonesia
+          <b:default/><data:name/>
+        </b:switch>
+
+      <b:else/>
+
+        <data:name/>
+
+      </b:if>
+      
+    </b:includable>
+    
+  </b:defaultmarkup>
+</b:defaultmarkups>
+
+<!-- PAGE CONTENT -->
+<b:defaultmarkups>
+  <b:defaultmarkup type='Common'>
+    
+    <b:includable id='@modules/stop-page-tracking'>
+      <!-- @modules/stop-page-tracking -->
+      <script>
+        function noTrackViews() {
+          var date = new Date();
+          date.setTime(date.getTime() + (90 * 24 * 60 * 60 * 1000));
+          var expires = "; expires=" + date.toGMTString();
+          document.cookie = "_ns=2" + expires + "; path=/";
+        }
+        // renew automatically on last visit
+        if (document.cookie.includes('_ns=2')) {
+            noTrackViews();
+        }
+      </script>
+      <b:if cond='
+              ( data:view.url.raw == (data:blog.homepageUrl.raw + "/notrack") ) OR
+              ( data:view.url.raw contains ("notrack" + "?m=1") AND data:blog.isMobile )
+      '>
+        <script>
+          noTrackViews();
+          alert('Your views will no longer be tracked.')
+        </script>
+      </b:if>
+    </b:includable>
+    
+    <!-- BLOG TITLE AND DESC -->
+    <b:includable id='@head/title-desc'>
+      
+      <b:if cond='data:view.isSingleItem or data:view.isHomepage'>
+        <b:if cond='data:view.isPost'>
+          <b:if cond='data:view.description contains "lyric and chord"'>
+            <!-- lemon page -->
+          </b:if>
+        </b:if>
+      </b:if>
+      
+      <b:if cond='data:view.isSingleItem or data:view.isHomepage'>
+        <!-- # single item, home page-->
+        
+        <!-- title -->
+        <b:with var='lyricChordKeywords' value='data:global.isLocal ? "Lirik dan chord " : " lyric and chord"'>
+        <b:with var='lyricChordKeywordsAlt' value='data:global.isLocal ? "Chord lirik " : " chord lyric"'>
+        <b:if cond='data:view.description contains data:lyricChordKeywords OR data:view.description contains data:lyricChordKeywordsAlt'>
+          <b:if cond='data:global.isLocal'>
+            <title><b:eval expr='data:blog.pageName + " Chord Lirik"'/></title>
+            <meta property="og:title" expr:content='data:blog.pageName + " Chord Lirik"'/>
+          <b:else/>
+            <title><b:eval expr='data:blog.pageName + " Lyric Chord"'/></title>
+            <meta property="og:title" expr:content='data:blog.pageName + " Lyric Chord"'/>
+          </b:if>
+        <b:else/>
+          <title><b:eval expr='data:blog.pageName ? (data:blog.pageName + " - " + data:blog.title.escaped) : data:blog.title.escaped'/></title>
+          <meta property="og:title" expr:content='data:blog.pageName ? (data:blog.pageName + " - " + data:blog.title) : data:blog.title'/>
+        </b:if>
+        </b:with>
+        </b:with>
+        
+        <!-- meta -->
+        <b:if cond='data:view.isHomepage'>
+          <meta property="og:description" expr:content="data:view.description"/>
+          <meta name="description" expr:content="data:view.description"/>
+        </b:if>
+        <meta property="og:url" expr:content="data:view.url"/>
+        <meta property="og:site_name" expr:content="data:blog.title"/>
+        
+      <b:elseif cond='data:view.isSearch'/>
+        <!-- # search page -->
+      
+        <b:if cond='data:view.search.label'>
+          <b:include name='searchLabelPage.title-and-meta'/>
+        <b:elseif cond='data:view.search.query'/>
+          <title><b:eval expr='"Search result : " + data:view.search.query.escaped'/></title>
+        <b:else/>
+          <title><data:messages.olderPosts/></title>
+        </b:if>
+    
+      <b:elseif cond='data:view.isArchive'/>
+        <title><data:messages.blogArchive/> : <data:blog.pageName/></title>
+      
+      <b:else/>
+        <title>404 : Page not found - <data:blog.title/></title>
+        <meta property="og:title" expr:content='"404 : Page not found - " + data:blog.title'/>
+        <meta property="og:description" content="The page that you are looking had been moved, deleted, or never existed"/>
+        <meta name="description" content="The page that you are looking had been moved, deleted, or never existed"/>
+        
+      </b:if>
+      
+    </b:includable>
+    
+  </b:defaultmarkup>
+</b:defaultmarkups>
+
+
+<b:defaultmarkups>
+  <b:defaultmarkup type='Common'>
+    
+    <!--WIDGETS-->
+    <b:includable id='@widget/blog.html'><file src='widget/blog.html'></file></b:includable>
+    
+    <!--SHARED VIEWS-->
+    <b:includable id='@views/shared/bottom-nav'><file src='view/shared/bottom-nav.html'></file></b:includable>
+    
+    <!--VIEWS-->
+    <b:includable id='@view/homepage'><file src='view/homepage.html'></file></b:includable>
+    <b:includable id='@view/post-header'><file src='view/post-header.html'></file></b:includable>
+    <b:includable id='@view/post-header-gt-tutorial'><file src='view/post-header-gt-tutorial.html'></file></b:includable>
+    <b:includable id='@view/posts'><file src='view/posts.html'></file></b:includable>
+    <b:includable id='@view/lyric-chord'><file src='view/lyric-chord.html'></file></b:includable>
+    <b:includable id='@view/post'><file src='view/post.html'></file></b:includable>
+    <b:includable id='@view/post-labels'><file src='view/post-labels.html'></file></b:includable>
+    <b:includable id='@view/bottom-nav-link'><file src='view/bottom-nav-link.html'></file></b:includable>
+    
+    <!-- ASSETS (JS, CSS) includables -->
+    <b:includable id="@css" var="opt">
+      <b:with var="scope" value='{
+        baseUrl: (data:isDev ? data:assets.dev.baseUrl : data:assets.prod.baseUrl),
+        path: (data:opt ? "/css/" + data:opt.path : ""),
+        cacheUID: (data:isDev ? "" : data:assets.prod.cachePrefix),
+      }'>
+        <b:tag name="link" rel="stylesheet" expr:href="data:scope.baseUrl + data:scope.path + data:scope.cacheUID"/>
+      </b:with>
+    </b:includable>
+    <b:includable id="@js" var="opt">
+      <b:with var="scope" value='{
+        baseUrl: (data:isDev ? data:assets.dev.baseUrl : data:assets.prod.baseUrl),
+        path: (data:opt ? "/js/" + data:opt.path : ""),
+        cacheUID: (data:isDev ? "" : data:assets.prod.cachePrefix),
+      }'>
+        <b:tag name="script" expr:src="data:scope.baseUrl + data:scope.path + data:scope.cacheUID">
+          <b:attr name='type' value='module' cond='data:opt AND data:opt.isModule'/>
+          <b:attr name='async' value='async' cond='data:opt AND data:opt.isAsync'/>
+        </b:tag>
+      </b:with>
+    </b:includable>
+    
+    <!--MODULES-->
+    <b:includable id='@modules/pacolemon/yt-iframe-v2'><file src='modules/pacolemon/yt-iframe-v2.html'></file></b:includable>
+    <b:includable id='@modules/post-highlight'><file src='modules/post-highlight.html'></file></b:includable>
+    <b:includable id='@modules/yt-iframe'><file src='modules/yt-iframe.html'></file></b:includable>
+    <b:includable id='@modules/fretchart'><file src='modules/fretchart.html'></file></b:includable>
+    <b:includable id='@modules/guitar-tab'><file src='modules/guitar-tab.html'></file></b:includable>
+    <b:includable id='@modules/codeblock'><file src='modules/codeblock-v2.3.html'></file></b:includable>
+    <b:includable id='@modules/live-html'><file src='modules/live-html.html'></file></b:includable>
+    <b:includable id='@modules/chordy'><file src='modules/chordy.html'></file></b:includable>
+    <b:includable id='@modules/chordyjs-v1'><file src='modules/chordyjs-v1.html'></file></b:includable>
+
+
+    <b:includable id='@modules/blog-shortcut'>
+      <!--nodivless-->
+      <b:with var='links' value='[
+        {
+          path: "/admin",
+          target: ("https://blogger.com/blog/posts/" + data:blog.blogId),
+        }, {
+          path: "/stats",
+          target: ("https://blogger.com/blog/stats/week/" + data:blog.blogId),
+        }, {
+          path: "/layout",
+          target: ("https://blogger.com/blog/layout/" + data:blog.blogId),
+        }, {
+          path: "/xml",
+          target: ("https://blogger.com/blog/themes/edit/" + data:blog.blogId),
+        }]'>
+        
+        <b:loop var='link' values='data:links'>
+          <b:if cond='data:view.url.raw == (data:blog.homepageUrl.raw + data:link.path)'>
+            <a expr:href='data:link.target' id='th-link'/>
+            <script> document.querySelector('#th-link').click(); </script>
+          <b:elseif cond='data:blog.isMobile AND data:view.url.raw contains ("/" + data:link.path + "?m=1")'/>
+            <a expr:href='data:link.target' id='th-link'/>
+            <script> document.querySelector('#th-link').click(); </script>
+          </b:if>
+        </b:loop>
+        
+      </b:with>
+      <!--/nodivless-->
+    </b:includable>
+
+  </b:defaultmarkup>
+</b:defaultmarkups>

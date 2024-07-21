@@ -1,0 +1,197 @@
+<style>
+  table[data-type="code"] {
+    display:grid;
+    overflow:auto;
+    border:0;
+    border-color:transparent;
+    background: #1c2123;
+    color: white;
+    font-size: 1rem;
+    border-radius: 6px;
+    line-height: 1.4rem;
+  }
+  table[data-type="code"] pre { margin: 0.3rem 0.6rem; }
+  table[data-type="code"] th { display:none; }
+  table[data-type="code"] tbody { display: grid; }
+  table[data-type="code"] tbody, table[data-type="code"] tr, table[data-type="code"] td { overflow: inherit!important;border:0; }
+  table[data-type="code"] tr:last-child { min-height: 40px; position: relative; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css" rel="stylesheet" />
+<style>
+  /*hljs overwrite*/
+  /*--------------*/
+  /*html*/
+  .hljs-deletion, .hljs-number, .hljs-quote, .hljs-selector-class, .hljs-selector-id, .hljs-string, .hljs-template-tag, .hljs-type { color: #e0d88e }
+  .hljs-tag .hljs-attr, .hljs-tag .hljs-name { color: #ce5061 }
+  .hljs-tag .hljs-attr { color: #69c36d }
+  .hljs-punctuation, .hljs-tag { color: #f9f9f9aa }
+  /*javascript*/
+  .hljs-section, .hljs-title { color: #4caf50 }
+  .hljs-keyword, .hljs-literal, .hljs-selector-tag { color: #319cf1 }
+</style>
+
+<style>
+  .ext-paco-block{
+    display: flex;
+    font-size: 0.9rem;
+    text-align: right;
+    justify-content: flex-end;
+    align-items:center;
+  }
+  .ext-paco-block .copy-icon {
+    background: url(https://1.bp.blogspot.com/-_wkP45GUv08/YYkAidTsrhI/AAAAAAAARAw/g1mzL45L1D4jmiJ99mIBaInLVa24GFSKACLcBGAsYHQ/s16/baseline_content_copy_black_24dp.png);
+    height: 16px;
+    width: 16px;
+  }
+  .ext-paco-block .copy-text{
+    display:none;
+    padding: 2px 8px;
+  }
+  .ext-paco-block .right {
+    display: flex;
+    gap: 8px;
+  }
+  .ext-paco-block button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 8px;
+    background: #afafaf38;
+    border: none;
+    opacity: 0.5;
+    margin-left: 8px;
+  }
+  .ext-paco-block button:hover{
+    background: #e3e3e3;
+    opacity: 1;
+  }
+</style>
+<template name='ext-paco-block' data-id='copy'>
+  <div class='ext-paco-block'>
+  [ {d:flex}
+    <span class='copy-text'>Copied</span>
+  ]
+  <div class='right'>
+  <button><span>Copy</span> <span class="copy-icon"></span></button></div></div>
+</template>
+<script>
+  /*<![CDATA[*/
+    (function() {
+      let $ = (selector, node = document) => node.querySelectorAll(selector);
+      let version = Math.floor(2.2);
+      let templateId = `paco-code-block-v${version}`;
+      class CustomElement extends HTMLElement {
+        constructor() {
+          super();
+          this.extensions = {};
+          this.options = '';
+          this.rootTable = this.findRootTableNode();
+          this.detectExtension();
+        }
+        
+        connectedCallback() {
+          this.hightlight();
+          if (!this.options.includes('no-copy'))
+            this.initExtensions();
+        }
+        
+        detectExtension() {
+          let extensions = $('template[name="ext-paco-block"]');
+          for (let ext of extensions) {
+            this.extensions[ext.dataset.id] = ext.content.cloneNode(true);
+          }
+        }
+        
+        hightlight() {
+          let pre = $('pre', this)[0];
+          let language = this.getLanguage();
+          let html = hljs.highlight(pre.innerText, {language})
+          pre.innerHTML = html.value;
+        }
+        
+        initExtensions() {
+          for (let key in this.extensions) {
+            switch (key) {
+              case 'copy':
+                this.initControl(this.extensions[key]);
+                break;
+            }
+          }
+        }
+        
+        initControl(extNode) {
+          if (this.rootTable) {
+            this.notifNode = $('span', extNode)[0];
+            $('button', extNode)[0].addEventListener('click', this.copySnippetCode.bind(this));
+            
+            this.rootTable.parentNode.insertBefore(extNode, this.rootTable);
+          }
+        }
+                  
+        getLanguage() {
+          let language = 'plaintext'
+          if (this.rootTable) {
+            let node = $('th', this.rootTable)[0];
+            let definedLanguage = node.textContent.trim().split('|');
+            let myLan = definedLanguage[0].trim();
+            if (myLan.length > 0)
+              language = myLan;
+            ;
+            if (definedLanguage[1]) {
+              let opt = definedLanguage[1].trim();
+              this.options = opt;
+            }
+          }
+          return language;
+        }
+        
+        findRootTableNode() {
+          let node = this;
+          let retry = 5;
+          while (node.parentNode && retry > 0) {
+            if (node.dataset.type == 'code') {
+              let style = node.getAttribute('style');
+              if (style) {
+                style = style.replace('%px', '%').replace(/color:.*?;/, '')
+                node.setAttribute('style', style); 
+              }
+              return node;
+              break;
+            }
+            node = node.parentNode;
+            retry--;
+          }
+          return null;
+        }
+        
+        copySnippetCode() {
+          var node  = document.createElement('textarea');
+          // replace with text you want to copy 
+          node.value = this.textContent;
+          document.body.append(node);
+          node.select();
+          node.setSelectionRange(0, node.value.length);
+          document.execCommand("copy");
+          node.remove();
+          this.showCopyNotif();
+        }
+        
+        showCopyNotif() {
+          // let node = this.extensions['copy'];
+          this.notifNode.style.display = 'block';
+          window.clearTimeout(this.copyTimeout);
+          this.copyTimeout = window.setTimeout(this.hideCopyNotif.bind(this), 1000);
+        }
+        
+        hideCopyNotif() {
+          let node = this.extensions['code'];
+          this.notifNode.style.display = 'none';
+        }
+        
+      }
+      customElements.define(templateId, CustomElement);
+    })();
+  /*]]>*/
+</script>

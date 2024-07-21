@@ -1,0 +1,31 @@
+<b:if cond='data:view.isMultipleItems or data:view.isError'>
+  
+  <!--<b:if cond='data:view.isHomepage'>-->
+    <b:include name='@view/homepage'/>
+  <!--<b:else/>-->
+    <!--<b:include name='@view/posts'/>-->
+  <!--</b:if>-->
+  
+<b:elseif cond='data:view.isSingleItem'/>
+  
+  <b:loop values='data:posts' var='post'>
+  
+    <b:if cond='data:post.labels any (label => label.name == data:const.labelName.lyricChord)'>
+      <!-- # widget/blog.html @view/lyric-chord -->
+      <b:include name='@view/lyric-chord'/>
+    <b:else/>
+      <!-- # widget/blog.html @view/lyric-post -->
+      <b:include name='@view/post'/>
+    </b:if>
+  
+  </b:loop>
+  [ .void .void-2x]
+  [ .void .void-full]
+  
+  <!-- file: widget/blog.html -->
+  <!-- # bottom nav -->
+  [ .bottom-nav-link-container
+    <b:include name='@view/bottom-nav-link'/>  
+  ]
+  
+</b:if>

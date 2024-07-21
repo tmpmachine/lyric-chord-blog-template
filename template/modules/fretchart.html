@@ -1,0 +1,139 @@
+<script src='https://pacolemon.web.app/blog-scripts/fretchart.min.js'></script>
+<style>
+table[data-type="fretchart-v2"]{
+    overflow:auto;
+    border:0;
+    border-color:transparent;
+    background: hsl(197deg 8% 4%);
+    color: white;
+    font-size: 1rem;
+    border-radius: 0 0 6px 6px;
+    padding: 4px;
+ }
+.fretchart-v2-tabs {
+    overflow: auto;
+    background: black;
+    color: white;
+    border-radius: 6px 6px 0 0;
+ }
+.fretchart-v2-tabs button {
+    padding: 10px 14px;
+    margin: 8px;
+    cursor: pointer;
+    background: #6f6f6f;
+    color: inherit;
+    border: 0;
+    border-radius: 4px;
+ }
+.fretchart-v2-tabs button.active {
+    background: #ba0643;
+}
+ table[data-type="fretchart-v2"] tr:nth-child(1){
+    max-height:none!important;
+ }
+ table[data-type="fretchart-v2"] tr:nth-child(2){
+     display:none!important;
+ }
+ table[data-type="fretchart-v2"]:not(.visible) pre {
+    visibility: hidden;
+ }
+</style>
+<script>
+//<![CDATA[
+(function() {
+  let $ = (selector, node = document) => node.querySelectorAll(selector);
+  let version = Math.floor(2);
+  let templateId = `fretchart-v${version}`;
+  class CustomElement extends HTMLElement {
+    constructor() {
+      super();
+      this.rootTable = this.findRootTableNode();
+    }
+    
+    connectedCallback() {
+      let waitInterval = window.setInterval(() => {
+        if (this.rootTable === null) {
+          this.rootTable = this.findRootTableNode();
+        } else {
+          window.clearInterval(waitInterval);
+          this.hightlight();
+        }
+      }, 100);
+    }
+    
+    hightlight() {
+      let pre = $('pre', this)[0];
+      
+      let guitar = new FretChart();
+      guitar.scale = 1.3;
+      guitar.setPalette({"fretboard":"#201e1e","fretMarker":"#c4c2c2","finger":"#ffffff","open":"#ffffff","nut":"#baae8f","special1":"#1e90ff","special2":"#ee82ee","fretNum":"#ffffff","fret":"#9f9d9d","fretShadow":"#564b4b","string":"#be907a","stringShadow":"#232020","string12":"#c0c0c0","string12Shadow":"#000","name":"#ffffff","circle":"#0d8115","circleText":"#ffffff"});
+    // guitar.setPalette({"fretboard":"#17161600","fretMarker":"#c4c2c2","finger":"#ffffff","open":"#f5f5f5","nut":"#dedede","special1":"#1e90ff","special2":"#ee82ee","fretNum":"#fafafa","fret":"#ffffff","fretShadow":"#ffffff","string":"#ffffff","stringShadow":"#ffffff","string12":"#ffffff","string12Shadow":"#ffffff","name":"#fcfcfc","circle":"#f0f0f0","circleText":"#1f1f1f"});
+       
+       
+       let selfNode = this;
+       let table = this.rootTable;
+       let data = JSON.parse(pre.textContent); 
+       
+          let partNode = document.createDocumentFragment();
+       let i = 0;
+       for (let part of data) {
+        let opt = document.createElement('button');
+        opt.innerHTML = part.name;
+        if (i === 0)
+          opt.classList.toggle('active', true);
+        opt.dataset.value = i;
+        // opt.value = i;
+        opt.addEventListener('click', changePart)
+        i++;
+        partNode.appendChild(opt)
+      }
+      let tabsNode = document.createElement('div');
+      tabsNode.classList.add(templateId+'-tabs');
+      table.parentNode.insertBefore(tabsNode, table);
+      tabsNode.innerHTML = '';
+      tabsNode.append(partNode)
+      
+       function changePart() {
+        let index = this.dataset.value;
+        for (let part of $('button', tabsNode)) {
+          part.classList.toggle('active', false);
+        }
+        this.classList.toggle('active', true);
+        
+        listChart(index);
+      }
+       
+        function listChart(partIndex) {
+          let chartList = document.createDocumentFragment();
+          for (let c of data[partIndex].chart) {
+            chartList.append(guitar.formula({fret:c.fret,finger:c.finger,name:c.name}))
+          }
+          
+          selfNode.innerHTML = '';
+          selfNode.append(chartList);
+        }
+      
+        listChart(0);
+      this.rootTable.classList.toggle('visible', true);
+    }
+    
+    findRootTableNode() {
+      let node = this;
+      let retry = 5;
+      while (node.parentNode && retry > 0) {
+        if (node.dataset.type == templateId) {
+          return node;
+        }
+        node = node.parentNode;
+        retry--;
+      }
+      return null;
+    }
+    
+  }
+  window.requestAnimationFrame(() => {
+    customElements.define(templateId, CustomElement);
+  })
+})();
+//]]>
+</script>

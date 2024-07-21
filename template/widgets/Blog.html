@@ -1,0 +1,144 @@
+<b:defaultmarkups>
+<b:defaultmarkup type="Blog">
+
+  <!-- # multiple items view, # home -->
+  <b:includable id="multipleItemsView">
+    
+    <div class="wgPostList d-flex flex-col gap-2x">
+      <b:loop values="data:posts" var="post">
+        <div class="wgPostItem d-flex gap-2x">
+           <div class="post-date">
+              <b:eval expr='data:post.date format "MMM d"'/>
+           </div>
+           <div class="flex-1">
+              <a class="Nzg1NTAxMQ" expr:href="data:post.url">
+                <data:post.title/>
+              </a>
+           </div>
+        </div>
+      </b:loop>
+    </div>
+    
+  </b:includable>
+
+  <!-- # single item view, # post -->
+  <b:includable id="singleItemView">
+    <b:loop values="data:posts" var="post">
+
+      <article>
+      <div class="wg-Post NDM4MDg3Mw no---thumbnail no---body">
+          <!-- ## post template -->
+          <!-- # edit link -->
+          [ .edit-link
+            [ .item-control .blog-admin
+                <b:if cond='data:view.isPage'>
+                  [a expr:href='"https://www.blogger.com/blog/page/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+                <b:else/>
+                  [a expr:href='"https://www.blogger.com/blog/post/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+                </b:if>
+            ]
+          ]
+          <div class="NDQyMDQ5MQ d-flex gap-full justify-content-betweem">
+              <div class="NDQyMDYxNQ">
+                  <h2 class="NDM4MDkwNQ">
+                      <!-- # title (single) -->
+                      <b:if cond="data:view.isSingleItem">
+                        <data:post.title/>
+                      <b:else/>
+                        <a class="NDQxNTM4Mw" expr:href="data:post.url">
+                          <data:post.title/>
+                        </a>
+                      </b:if>
+                  </h2>
+                  <div class="void void-quarter"></div>
+                  
+                  <div class="wgAuthorInfo d-flex align-items-center gap-full">
+                    <!-- author photo -->
+                    <b:tag name="a" cond="data:post.author.authorPhoto.image" class="d-flex" expr:href='data:post.author.profileUrl'>
+                      <img expr:src="data:post.author.authorPhoto.image resizeImage 42"/>
+                    </b:tag>
+                    <div class="ODAwMjc4OQ">
+                      <!-- author name -->
+                      <a class="NzI0NTIxOA" expr:href='data:post.author.profileUrl'>
+                          <data:post.author.name/>
+                      </a>
+                      <!-- # date (single) -->
+                      <div class="NDM4MDkwNw">
+                        <b:eval expr='data:post.date format "MMM d"'/>
+                      </div>
+                    </div>
+                  </div>
+                  
+              </div>
+              <div class="NDQyMDYyMw d-flex align-items-start">
+                  <a class="NDQyMjcwMw" expr:href="data:post.url">
+                      <!-- # thumbnail (single) -->
+                      <b:with var='postThumbnailUrl' value = 'data:post.thumbnailUrl OR data:post.featuredImage ? data:post.featuredImage : ""'>
+                          <img class="NDQyMDY5Nw" expr:src="data:postThumbnailUrl"/>
+                      </b:with>
+                  </a>
+              </div>
+          </div>
+          <div class="NDM4MDkxMQ">
+              <div class="void void-2x"></div>
+              <!-- post body -->
+              <div class="NDM4NzU4Mw">
+                <b:eval expr='data:post.body'/>
+              </div>
+              <div class="void void-2x"></div>
+          </div>
+          <div class="NDM4OTA0Mg">
+              <div class="void void-2x"></div>
+              <div class="NDM4ODQwNQ d-flex flex-column align-items-end">
+                  <!-- ## post separator -->
+                  <div class="NDM5NjYwMQ"></div>
+                  <div class="NDM4ODQzNQ"></div>
+              </div>
+              <div class="void void-2x"></div>
+          </div>
+      </div>
+      </article>
+
+      [ .wg-CommentThread
+        <b:include name="commentPicker" data="post"/>
+      ]
+      
+    </b:loop>  
+  
+    <!-- # pagination -->
+    <!--<b:include name='post-navigation'/>-->
+    
+    
+  </b:includable>
+  
+  <!-- # main -->
+  <b:includable id="main" var="this">  
+    <b:include cond="data:view.isMultipleItems" name="multipleItemsView"/>
+    <b:include cond="data:view.isSingleItem" name="singleItemView"/>
+  </b:includable>
+    
+  <b:includable id='post-navigation'>
+    [ .d-flex .justify-content-between
+        [
+          <b:if cond="data:newerPageUrl">  
+            [a 'Newer posts' expr:href="data:newerPageUrl"]
+          </b:if>
+        ]
+        
+        [
+          <b:if cond="data:olderPageUrl">
+            [a 'Older posts' expr:href="data:olderPageUrl"]
+          </b:if>
+        ]
+    ]
+    
+    <b:if cond="data:newerPageUrl OR data:olderPageUrl">  
+        [ .void .void-2x]
+        [ .text-center
+          [a 'Home' expr:href="data:blog.homepageUrl"]
+        ]
+    </b:if>
+  </b:includable>
+    
+</b:defaultmarkup>
+</b:defaultmarkups>

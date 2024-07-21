@@ -1,0 +1,33 @@
+<b:defaultmarkups>
+  <b:defaultmarkup type='Common'>
+
+    <b:includable id='@post/breadcrumbs'>
+      
+      <!-- @post/breadcrumbs -->
+      <b:with var='breadcrumbs' value='{
+        labels: (data:global.isLocal ? data:global.breadcrumbs.local : data:global.breadcrumbs.global)
+      }'>
+      [ .widget-breadcrumbs
+        <ol>
+          
+          <b:with var='label' value='data:post.labels first (l => l.name in data:breadcrumbs.labels)'>
+            <b:if cond='data:label'>
+              <li>
+                <a expr:href='data:blog.homepageUrl.canonical path "/search/label/" + data:label.name + (data:blog.isMobileRequest ? "?m=1" : "")'>
+                  <b:include name='label-alias'  data='{ name: data:label.name }'/>
+                </a>
+              </li>
+            </b:if>
+          </b:with>
+          
+          <!--<li>
+            <data:post.title/>
+          </li>-->
+        </ol>
+      ]
+      </b:with>
+      
+    </b:includable>
+
+  </b:defaultmarkup>
+</b:defaultmarkups>

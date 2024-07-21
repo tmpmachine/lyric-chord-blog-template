@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <meta name="viewport" content="width=device-width"/>
+  
+
+</head>
+<body>
+    
+    <script src='https://pacolemon.web.app/blog-scripts/chordy.min.js'></script>   
+    
+    
+    <style>
+      table[data-type="chordyjs-v1"], table[data-type="chordyjs-v1"] td {
+        border:0;
+        padding:0!important;
+      }
+      table[data-type="chordyjs-v1"] tr:nth-child(2) {
+        display: none;
+      }
+    </style>
+    <style>
+  .INTRO, .OUTRO, .INTERLUDE{ 
+    color: #fff;
+    background: #000;
+    padding: 2px 6px 0 4px;
+  }
+  .VERSE,.PRE-CHORUS{color:#3f51b5}
+  .CHORUS{color:#e91e63}
+  .CODA{color:#e91e63}
+  .ENDING{color:#e91e63}
+  .BRIDGE{color:#9c27b0}
+  
+  /*dark theme preset*/
+  .--dark .INTRO,
+  .--dark .OUTRO,
+  .--dark .INTERLUDE
+    {padding:2px 6px 0 4px}
+  .--dark .INTRO,
+  .--dark .OUTRO,
+  .--dark .INTERLUDE
+    {color:#000!important;background:#c1c1c1!important}
+  .--dark .VERSE,
+  .--dark .PRE-CHORUS
+    {color:#8799ff!important}
+  .--dark .CHORUS{color:#ec5186!important}
+  .--dark .CODA{color:#ec5186!important}
+  .--dark .ENDING{color:#ec5186!important}
+  .--dark .BRIDGE{color:#a56caf!important}
+</style>
+<style name='chordy-font-size'>
+  #chordy-char.mode2, .chordy-container.mode1 {font-size:16px;font-family:monospace;}
+  #chordy-char.mode1, .chordy-container.mode2 {font-size:17px;font-family:Telex, sans-serif;}
+  @media (max-width:480px) {
+    #chordy-char.mode2, .chordy-container.mode1 {font-size:15px;font-family:monospace;}
+    #chordy-char.mode1, .chordy-container.mode2 {font-size:16px;font-family:Telex, sans-serif;}
+  }
+</style>
+<template name='chordy-font-style'>
+  <style>
+    #chordy-char.mode2, .chordy-container.mode1 {font-size:__size1__px;font-family:monospace;}
+    #chordy-char.mode1, .chordy-container.mode2 {font-size:__size2__px;font-family:Telex, sans-serif;}
+  </style>
+</template>
+    
+    <table border="1" cellpadding="0" cellspacing="0" data-type="chordyjs-v1" data-kind="blogger-table-component" style="width:-webkit-fill-available;">
+      <tr style="display:grid;overflow:auto;">
+        <td style="display:grid;padding:8px;overflow:auto;">
+          <chordyjs-v1>
+            <pre style="margin:0;">Lemon
+Kenshi Yonezu
+Key :  C
+
+VERSE 1
+     Am       G         F         C
+Yume naraba dore hodo yokatta deshou
+   F        C          F#dim        E7/G#
+Imada ni anata no koto wo yume ni miru
+    Am        G          F         C
+Wasureta mono wo tori ni kaeru you ni
+    F       C        G         C
+Furubita omoide no hokori wo harau</pre>
+          </chordyjs-v1>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align:right;padding:4px 8px;">
+          <small>chordyjs-v1</small>
+        </td>
+      </tr>
+    </table>
+    [ @chordy-container-width]
+    
+   
+    <script>
+    //<![CDATA[
+    (function() {
+      
+      let $ = (selector, node = document) => node.querySelectorAll(selector);
+      let version = Math.floor(1);
+      let templateId = `chordyjs-v${version}`;
+      class CustomElement extends HTMLElement {
+        constructor() {
+          super();
+          this.rootTable = this.findRootTableNode();
+        }
+        
+        connectedCallback() {
+          this.rootTable = this.findRootTableNode();
+          this.init();
+        }
+        
+        init() {
+          let pre = $('pre', this)[0];
+          chordy.init(pre);
+        }
+        
+        findRootTableNode() {
+          let node = this;
+          let retry = 5;
+          return node.closest(`[data-type="${templateId}"]`);
+        }
+        
+      }
+      
+      customElements.define(templateId, CustomElement);
+    })();
+    //]]>
+    </script>
+    
+    
+   
+</body>
+</html>

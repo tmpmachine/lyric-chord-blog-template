@@ -1,0 +1,208 @@
+<style>
+  table[data-type="chordyjs-v1"], table[data-type="chordyjs-v1"] td {
+    border:0;
+    padding:0!important;
+  }
+  table[data-type="chordyjs-v1"] tr:nth-child(2) {
+    display: none;
+  }
+</style>
+<style>
+  .chord-modal {
+    background: #181818;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 16px;
+  }
+  
+  .chord-modal:not(.show) {
+    height: 0;
+    overflow: hidden;
+  }
+  
+  .chords {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+.chord-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 16px;
+}
+
+	.chord-modal.show {
+    background: #181818;
+  }
+  .icon-close {
+    height: 24px;
+    width: 24px;
+    font-size: 2rem;
+    line-height: 1.5rem;
+    color: initial;
+  }
+</style>
+<style>
+  .INTRO, .OUTRO, .INTERLUDE{ 
+    color: #fff;
+    background: #000;
+    padding: 2px 6px 0 4px;
+  }
+  .VERSE,.PRE-CHORUS{color:#3f51b5}
+  .CHORUS{color:#e91e63}
+  .CODA{color:#e91e63}
+  .ENDING{color:#e91e63}
+  .BRIDGE{color:#9c27b0}
+  
+  /*dark theme preset*/
+  .--dark .INTRO,
+  .--dark .OUTRO,
+  .--dark .INTERLUDE
+    {padding:2px 6px 0 4px}
+  .--dark .INTRO,
+  .--dark .OUTRO,
+  .--dark .INTERLUDE
+    {color:#000!important;background:#c1c1c1!important}
+  .--dark .VERSE,
+  .--dark .PRE-CHORUS
+    {color:#8799ff!important}
+  .--dark .CHORUS{color:#ec5186!important}
+  .--dark .CODA{color:#ec5186!important}
+  .--dark .ENDING{color:#ec5186!important}
+  .--dark .BRIDGE{color:#a56caf!important}
+</style>
+<style name='chordy-font-size'>
+  #chordy-char.mode2, .chordy-container.mode1 {font-size:16px;font-family:monospace;}
+  #chordy-char.mode1, .chordy-container.mode2 {font-size:17px;font-family:Telex, sans-serif;}
+  @media (max-width:480px) {
+    #chordy-char.mode2, .chordy-container.mode1 {font-size:15px;font-family:monospace;}
+    #chordy-char.mode1, .chordy-container.mode2 {font-size:16px;font-family:Telex, sans-serif;}
+  }
+</style>
+<template name='chordy-font-style'>
+  <style>
+    #chordy-char.mode2, .chordy-container.mode1 {font-size:__size1__px;font-family:monospace;}
+    #chordy-char.mode1, .chordy-container.mode2 {font-size:__size2__px;font-family:Telex, sans-serif;}
+  </style>
+</template>
+
+<script src='https://pacolemon.web.app/blog-scripts/chordy.min.js'></script>
+
+<script>
+//<![CDATA[
+  
+  (function() {
+    
+    let $ = document.querySelector.bind(document);
+    let version = Math.floor(1.1);
+    let templateId = `chordyjs-v${version}`;
+    class CustomElement extends HTMLElement {
+      constructor() {
+        super();
+      }
+      
+      async connectedCallback() {
+        this.rootTable = await await waitUntil(() => {
+          return this.closest(`[data-type="${templateId}"]`);
+        });
+        this.init();
+      }
+      
+      init() {
+        let preEl = this.querySelector('pre');
+        chordy.init(preEl);
+        
+        if (localStorage.getItem('config-chordy-view') == null) {
+          localStorage.setItem('config-chordy-view', 0);
+        }
+        
+        chordy.toggleLyric(preEl, Number(localStorage.getItem('config-chordy-view')));
+        preEl.classList.toggle('show');
+        
+        $('#select-key').value = preEl.data.transposer._baseKey;
+        $('#select-key').options[preEl.data.transposer._baseKey].textContent += '**';
+        chordy.updateTransposer(preEl);
+      }
+      
+    }
+    
+    customElements.define(templateId, CustomElement);
+    
+    function waitUntil(stateCheckCallback, delay = 100) {
+        return new Promise(resolve => {
+            let interval = window.setInterval(() => {
+            let shouldResolve = stateCheckCallback();
+            if (shouldResolve) {
+                window.clearInterval(interval);
+                resolve();
+            }
+            }, delay);
+        });
+    }
+    
+  })();
+
+//]]>
+</script>
+
+<script src='https://pacolemon.web.app/blog-scripts/fretchart.min.js'></script>
+<script>
+  //<![CDATA[
+  
+  ;(function() {
+        
+    let $ = document.querySelectorAll.bind(document);
+
+    let guitar = new FretChart()
+    guitar.scale = 1.5
+    guitar.setPalette({"fretboard":"#201e1e","fretMarker":"#c4c2c2","finger":"#ffffff","open":"#ffffff","nut":"#baae8f","special1":"#1e90ff","special2":"#ee82ee","fretNum":"#ffffff","fret":"#9f9d9d","fretShadow":"#564b4b","string":"#be907a","stringShadow":"#232020","string12":"#c0c0c0","string12Shadow":"#000","name":"#ffffff","circle":"#2ba633","circleText":"#ffffff"});
+    
+    function closeChord() {
+      $('.chord-modal')[0].classList.remove('show');
+      document.body.classList.remove('show-chord');
+    }
+    
+    function openChord() {
+      $('.chord-modal')[0].classList.add('show');
+      document.body.classList.add('show-chord');
+      $('.chords')[0].innerHTML = '';
+      loadChords();
+    }
+    
+    window.openChord = openChord;
+    window.closeChord = closeChord;
+    
+    function loadChords() {
+      let chords = [];
+      for (let chordName of chordy._chordBase) {
+        if (chordName.charAt(0) == '(')
+          continue;
+        for (let c of availableChord) {
+          if (c[0] == chordName) {
+            chords.push(c);
+          }
+        }
+      }
+      chords.sort((a,b)=>a[0] < b[0] ? -1 : 1);
+      for (let c of chords) {
+        $('.chords')[0].append(guitar.formula({
+          name: c[0],
+          fret: c[1],
+          finger: c[2],
+        }))
+      }
+    }
+
+  })();
+  
+  //]]>
+</script>
+
+<script>
+  fetch('https://tmpmachine.github.io/public/guitar-chord-chart.json')
+  .then(r=>r.json())
+  .then(data => {
+    window.availableChord = data;
+  });
+</script>

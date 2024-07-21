@@ -1,0 +1,314 @@
+<b:defaultmarkups>
+  <b:defaultmarkup type='Common'>
+    
+    <!--CUSTOM WIDGETS-->
+    <b:includable id='@custom-widget/feed'>
+      <my-compo>
+        [span slot='id'
+          <data:widget.instanceId/>
+        ]
+        [span slot='max-results'
+          <data:numItemsShow/>
+        ]
+        [span slot='feed-url'
+          <data:feedUrl/>
+        ]
+      </my-compo>
+    </b:includable>
+    
+    
+    <b:includable id='@web-components/feed'>
+      
+      <script>
+      
+      /*<![CDATA[*/
+        (function() {
+          let $ = (selector, node = document) => node.querySelectorAll(selector);
+          let version = Math.floor(1);
+          // let templateId = `my-compo-v${version}`;
+          let templateId = `my-compo`;
+          class CustomElement extends HTMLElement {
+            constructor() {
+              super();
+              // let fragment = document.createDocumentFragment();
+              let fragment = $('#my-custom-element')[0].content.cloneNode(true);
+              // this.style.display = 'block';
+              this.attachShadow({mode: 'open'}).append(fragment);
+            }
+            
+            connectedCallback() {
+              // console.log();
+              let feedUrl = null;
+              let id = null;
+              let maxResults = null;
+              
+              let slot = this.shadowRoot.querySelectorAll('slot')[0];
+              let slot2 = this.shadowRoot.querySelectorAll('slot')[1];
+              let slot3 = this.shadowRoot.querySelectorAll('slot')[2];
+              
+              slot.addEventListener('slotchange', () => {
+                let nodes = slot.assignedNodes();
+                id = nodes[0].innerHTML.trim();
+                
+                if (feedUrl !== null && id !== null) {
+                  window.feedThis(this, feedUrl, id, maxResults)
+                }
+              });
+              
+              slot2.addEventListener('slotchange', () => {
+                let nodes = slot2.assignedNodes();
+                feedUrl = nodes[0].innerHTML.trim();;
+                
+                if (feedUrl !== null && id !== null) {
+                  window.feedThis(this, feedUrl, id, maxResults)
+                }
+              });
+              
+              slot3.addEventListener('slotchange', () => {
+                let nodes = slot3.assignedNodes();
+                maxResults = nodes[0].innerHTML.trim();;
+                
+                if (feedUrl !== null && id !== null && maxResults !== null) {
+                  window.feedThis(this, feedUrl, id, maxResults)
+                }
+              });
+              
+            }
+            
+            
+          }
+          
+          customElements.define(templateId, CustomElement);
+          
+        })();
+      /*]]>*/
+      </script>
+      
+      <template id='my-custom-element'>
+
+        <style>
+          .list-thumb-headline {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+          }
+          .list-thumb-headline .thumb-box {
+            max-width: 160px;
+          }
+          .list-thumb-headline .thumb-box a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            outline: none;
+            height: 184px;
+            position: relative;
+            overflow: hidden;
+            color: var(--site-link-color);
+          }
+          .list-thumb-headline .thumb-box p {
+            font-size: 13px;
+            font-weight: bold;
+            line-height: 1.4em;
+            margin: 0;
+            margin-top: 15px;
+            height: 73px;
+            overflow: hidden;
+            font-family: Sans-Serif;
+          }
+          
+          
+          /*SKELETON*/
+          .list-thumb-headline .thumb-box a:after {
+            background: #99c901;
+            height: 4px;
+            position: absolute;
+            left: -100%;
+            width: 100%;
+            content: "";
+            bottom: 0;
+          }
+          .list-thumb-headline .thumb-box.active a:after {
+            transition: left 5s ease;
+            left: 0;
+          }
+          
+          .carousel-inner .headline-large.skeleton {
+            display: block;
+            background: #e9e9e9;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            opacity: 1;
+          }
+          .thumb-box.skeleton .thumb-box-thumbnail {
+            width: 140px;
+            height: 70px;
+            background: #e9e9e9;
+          }
+          .thumb-box.skeleton .p-cover {
+            margin-top: 15px;
+          }
+          .thumb-box.skeleton p {
+            background: #e9e9e9;
+            display: inline;
+            color: transparent;
+            font-size: 13px;
+            font-weight: bold;
+            line-height: 1.4em;
+            overflow: hidden;
+            font-family: Sans-Serif;
+            height: 73px;
+          }
+          slot {
+            display: none;
+          }
+        </style>
+        
+        <slot name='id'></slot>
+        <slot name='feed-url'></slot>
+        <slot name='max-results'></slot>
+        
+        <ol class="list-thumb-headline"></ol>
+        
+      </template>
+            
+      <!--TEMPLATES-->
+      <template id="tmp-headline">
+        <div class="item headline-large">
+          <a href="#" class="img-block">
+            <img width="800" height="400"/>
+          </a>
+          <a class="deskrip-large" href="#"></a>
+        </div>
+      </template>
+      
+      <template id="tmp-headline-thumbnail">
+        <li class="thumb-box" data-index="0">
+          <a href="#" class="headline-link">
+            <img width="140" height="70"/>
+            <p></p>
+          </a>
+       </li>
+      </template>
+      
+      <template id="tmp-headline-skeleton">
+        <div class="item headline-large skeleton"></div>
+      </template>
+      
+      <template id="tmp-headline-thumbnail-skeleton">
+        <li class="thumb-box skeleton">
+          <a href="#">
+            <div class="thumb-box-thumbnail"></div>
+            [ .p-cover
+              <p>Eksodus Berlanjut, Chelsea Akan Ditinggal Petr Cech</p>
+            ]
+          </a>
+       </li>
+      </template>
+        
+            
+      <script>
+      //<![CDATA[
+        
+        window.feedThis = function(node, feedUrl, widgetId, maxResults) {
+          
+          
+          // let blogFeedUrl = '<data:feedUrl/>';
+          let blogFeedUrl = feedUrl;
+          
+          
+          let L = console.log;
+          let $ = node.shadowRoot.querySelectorAll.bind(node.shadowRoot);
+          // let $ = document.querySelectorAll.bind(document);
+          let template=function(){let $=document.querySelectorAll.bind(document);function a(a){return function(a,b=document){return b.querySelectorAll(a)}(a,this)}return{clone:function(c){let b=$(c)[0].content.cloneNode(!0);return b.getChild=a,b}}}();
+          
+          
+          let defaultThumbnailUrl = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQwTqlGbLo7btOZ16B6cwEnfsXgzjZk3Ys1TEpV5glREu0VbfGICjDM5dvf3DzriKjpzfnUKMVaRxgzqDEHSD3tnrnZ46ZGVB_ZR62PNsinFxCY8MJUZ4vGAH5eclEhP2UAbOVSAZcw39ydTAHlCKIdr07NK-aG7-heLZ8UtDtLYNWZlRB_IbfzlJxcg/s320/no-image.png';
+          let prefetchData = window.localStorage.getItem('prefetch-carousel-'+widgetId);
+          let isUsePrefetch = false;
+          if (prefetchData !== null) {
+            try {
+              prefetchData = JSON.parse(prefetchData);
+              isUsePrefetch = true;
+            } catch (err) { }
+          }
+      
+          function preload() {
+            $('.list-thumb-headline')[0].append(template.clone('#tmp-headline-thumbnail-skeleton'));
+          }
+          
+          function fetchHeadline() {
+            
+            let callbackName = 'onfeedcallback' + widgetId;
+            window[callbackName] = handleResponse;
+            let script = document.createElement('script');
+            let url = new URL(blogFeedUrl);
+            let urlParams = new URLSearchParams(url.search);
+            urlParams.append('alt', 'json-in-script');
+            urlParams.append('max-results', maxResults);
+            urlParams.append('callback', 'window.' + callbackName);
+            script.src = url.origin + url.pathname + '?' + urlParams;
+            document.body.append(script);
+            script.remove();
+          }
+          
+          function handleResponse(response) {
+            loadCarousel(response, true)
+          }
+          
+          function loadCarousel(res, isCarousel) {
+            localStorage.setItem('prefetch-carousel-'+widgetId, JSON.stringify(res));
+            loadThumbnail(res);
+          }
+          
+          function loadThumbnail(res) {
+            let fragment = document.createDocumentFragment();
+            let index = 0;
+            for (let item of res.feed.entry) {
+              let node = template.clone('#tmp-headline-thumbnail');
+              
+              if (item.media$thumbnail) {
+                node.getChild('img')[0].src = blogImageResizer(item.media$thumbnail.url, 140, 70);
+              } else {
+                node.getChild('img')[0].src = blogImageResizer(defaultThumbnailUrl, 140, 70);
+              }
+              
+              node.getChild('.thumb-box')[0].dataset.index = index;
+              node.getChild('p')[0].textContent = item.title.$t;
+              node.getChild('a')[0].href = item.link.find(x => x.rel == 'alternate').href;
+      
+              fragment.append(node);
+              index++;
+            }
+            
+            $('.list-thumb-headline')[0].innerHTML = '';
+            $('.list-thumb-headline')[0].append(fragment);
+          }
+          
+          
+          function blogImageResizer(url, width=400, height=196) {
+            if (url.includes('=s72-')) {
+              return url.replace(/=.*/g, `=w${width}-h${height}-c`);
+            } else if (url.match(/\/s[0-9]*?\-.*?\//)) {
+              return url.replace(/\/s[0-9]*?\-.*?\//g, `/w${width}-h${height}-c/`);
+            }
+            return url;
+          }
+          
+          try {
+            preload();
+            if (isUsePrefetch) {
+              loadCarousel(prefetchData, false);
+            }
+          } catch (e) { }
+          fetchHeadline();
+          
+        };
+        
+      // ]]>
+      </script>
+          
+    </b:includable>
+
+  </b:defaultmarkup>
+</b:defaultmarkups>

@@ -1,0 +1,69 @@
+<b:include name='@post/breadcrumbs'/>
+[ .void-full]
+[ .void-full]
+
+<style>
+  .post-title {
+    line-height: 1.3;
+    /*font-size: clamp(2.5rem, 5vw,3rem);*/
+    font-size: 30px;
+    margin: 0;
+    margin-bottom: 1rem;
+  }
+</style>
+
+
+
+
+<b:if cond='data:post.labels any (l => l.name == "use-summary")'>
+  <style>
+    .post-body > p:first-child {
+      display: none;
+    }
+  </style>
+</b:if>
+
+<!--updated date-->
+[ .text-end 
+  <b:if cond='data:post.date != data:post.lastUpdated'>
+    [ {fs:0.9rem} .opacity-75 .text-end
+      Last updated <b:eval expr='data:post.lastUpdated format "MMM d, YYY"'/>
+    ]
+  </b:if>
+]
+
+<!--edit link-->
+<!--<b:comment>-->
+[ {mh:30px}
+  [ .item-control .blog-admin
+    [a {fs:0.9rem;col:inherit} expr:href='"https://www.blogger.com/blog/post/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+  ]
+]
+<!--</b:comment>-->
+
+<!--post title-->
+[h1 .post-title
+  <data:post.title/>
+]
+
+<!--post summary-->
+<b:comment>
+<b:if cond='data:post.labels any (l => l.name == "use-summary")'>
+[p .post-summary
+  <data:post.snippets.long/>
+]
+</b:if>
+</b:comment>
+
+<!-- author data -->
+<b:comment>
+[ .post-author
+  [b "<data:post.author.name/>"]
+  [ {fs:1rem}
+    [a href="https://instagram.com/tmpmachine7" "Instagram" ] . 
+    [a href="https://youtube.com/tmpmachine7" "YouTube" ] . 
+    [a href="https://github.com/tmpmachine" "GitHub" ] . 
+    [a href="https://twitter.com/tmpmachine" "Twitter" ]
+  ]
+]
+</b:comment>

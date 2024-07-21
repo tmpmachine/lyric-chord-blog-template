@@ -1,0 +1,21 @@
+<b:defaultmarkups><b:defaultmarkup type="Header">
+
+  <!-- main -->
+  <b:includable id="main" var="this">  
+    <b:include cond='data:imagePlacement in {"REPLACE"}' name='image'/>
+  </b:includable>
+  <!---->
+  <b:includable id='image'>
+    [ .wgHeaderLogo .d-flex .justify-content-center
+      [a expr:href='data:blog.homepageUrl' .d-flex
+        <b:include data='{
+          image: data:image,
+          altText: data:blog.title.escaped,
+          originalWidth: data:width,
+          originalHeight: data:height
+        }' name='responsiveImage'/>
+      ]
+    ]
+  </b:includable>
+    
+</b:defaultmarkup></b:defaultmarkups>

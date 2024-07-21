@@ -1,0 +1,22 @@
+[ .wg-PostNavLink
+  <b:if cond='data:posts.isEmpty'>
+    <b:class name='justify-content-center'/>
+    [ 
+      <a expr:href='data:blog.homepageUrl'>Back to Homepage</a>
+    ]
+  <b:else/>
+    <b:class name='justify-content-between'/>
+      [
+        <b:if cond='data:newerPageUrl'>  
+          <a expr:href='data:newerPageUrl'>Newer post</a>
+        <b:elseif cond='!data:view.isHomepage'/>
+          <a expr:href='data:blog.homepageUrl'>Homepage</a>
+        </b:if>
+      ]
+      [
+        <b:if cond='data:olderPageUrl'>
+          <a expr:href='data:olderPageUrl'>Older post</a>
+        </b:if>
+      ]
+  </b:if>
+]

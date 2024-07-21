@@ -1,0 +1,88 @@
+[ .post-container
+
+  <b:if cond='data:view.isError'>
+    [ .text-center
+      [h1 
+        404
+      ]
+      [p
+        <b:include name='@messages/404'/>
+      ]
+    ]
+  <b:elseif cond='data:posts.isEmpty'/>
+    [ .text-center
+      [h1 
+        No posts to show
+      ]
+      [p
+        <b:include name='@messages/no-search-results'/>
+      ]
+    ]
+  </b:if>
+
+  [h2 'Latest Posts']
+  [ .void .void-2x]
+
+  <!--latest articles-->
+  [ .t-latest-container
+    <!-- # wg-ListPostsHomepage -->
+    [ .wg-ListPostsHomepage
+      <b:loop values="data:posts" var="post">
+        <b:include name="@wg-PostHomepage"/>
+      </b:loop>
+      
+    ]
+    
+    <b:include name='@views/shared/bottom-nav'/>
+    
+  ]
+  
+  
+  <b:comment>
+  <!--latest posts-->
+  [ .grid-posts
+    <b:loop values='data:posts' var='post'>
+      [ .post-items .overflow-hidden expr:id='"post-" + data:post.id'
+        [ .post-items__inner
+          [a expr:href='data:post.url'  
+            [ .post-thumbnail
+              <b:with var='thumbnail' value = 'data:post.thumbnailUrl OR data:post.featuredImage ? "background:url(" + data:post.featuredImage + ")" : ""'>
+                <b:attr name='style' value='display:none;' cond='!data:thumbnail'/>
+                [ .default-thumbnail expr:style='data:thumbnail' .post-image]
+              </b:with>
+            ]
+          ]
+          [ {mt:16px} .card-body
+            [a expr:href='data:post.url' .title
+              [h3 
+                <data:post.title/>
+              ]
+            ]
+            <b:if cond='data:post.labels any (l => l.name == "use-home-summary")'>
+            [p .post-items__summary
+              <data:post.snippets.long/>
+            ]
+            </b:if>
+            [ .post-labels
+              <b:loop values='data:post.labels where (l => l.name not in data:global.hiddenLabels)' var='label'>
+                [a expr:href='data:blog.homepageUrl path "search" appendParams {q: ("label:\"" + data:label.name + "\"") }'
+                  <data:label.name/>
+                ]
+              </b:loop>
+            ]
+            [
+              [time
+                <b:eval expr='data:post.date format "MMMM d, YYY"'/>
+              ]
+            ]
+            [p {d:none}
+              <b:eval expr='data:post.body snippet { links: false }'/>
+            ]
+          ]
+        ]
+      ]
+    </b:loop>  
+  ]
+  </b:comment>
+
+]

@@ -1,0 +1,89 @@
+[dialog 'Quick tips: Ctrl + E to edit post' .wg-PostEditTips ._editTipsDialog]
+
+<b:include name='@post/breadcrumbs'/>
+[ .void .void-half]
+
+<b:if cond='data:post.labels any (l => l.name == "use-summary")'>
+  <style>
+    .post-body > p:first-child {
+      display: none;
+    }
+  </style>
+</b:if>
+
+<!-- # auth checker -->
+[ {h:1px} .ov-hidden
+  [ .item-control .blog-admin {h:1px} ._adminChecker ]
+  [ .hidden ._postLink
+    <b:if cond='data:view.isPage'>
+      [a {fs:0.9rem;col:inherit} expr:href='"https://www.blogger.com/blog/page/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+    <b:else/>
+      [a {fs:0.9rem;col:inherit} expr:href='"https://www.blogger.com/blog/post/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+    </b:if>
+  ]
+]
+
+<!--edit link-->
+[ {mh:30px} .obsoletes
+  [ .item-control .blog-admin
+    <b:if cond='data:view.isPage'>
+      [a {fs:0.9rem;col:inherit} expr:href='"https://www.blogger.com/blog/page/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+    <b:else/>
+      [a {fs:0.9rem;col:inherit} expr:href='"https://www.blogger.com/blog/post/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+    </b:if>
+  ]
+]
+
+<!-- # post title -->
+<h1 class="post-title">
+  <data:post.title/>
+</h1>
+
+<!-- # post info -->
+[ .info
+  [ .author
+    <a expr:href='data:post.author.profileUrl'><data:post.author.name/></a>
+  ]
+  <!-- # date -->
+  [ .date-info
+    [ .published-date
+      <b:eval expr='data:post.date format "MMMM d, YYY"'/>
+      <b:if cond='data:post.date != data:post.lastUpdated'>
+        [s .updated-date
+          (updated <b:eval expr='data:post.lastUpdated format "MMMM d, YYY"'/>)
+        ]
+      </b:if>
+    ]
+  ]
+]
+[ .void .void-2x]
+
+<!-- # actions -->
+[ .wg-PostActions
+  [btn 'Share this post' data-onclick="share-post"]
+]
+
+[ .void .void-half]
+[ .void .void-2x]
+
+<!--post summary-->
+<b:comment>
+<b:if cond='data:post.labels any (l => l.name == "use-summary")'>
+[p .post-summary
+  <data:post.snippets.long/>
+]
+</b:if>
+</b:comment>
+
+<!-- author data -->
+<b:comment>
+[ .post-author
+  [b "<data:post.author.name/>"]
+  [ {fs:1rem}
+    [a href="https://instagram.com/tmpmachine7" "Instagram" ] . 
+    [a href="https://youtube.com/tmpmachine7" "YouTube" ] . 
+    [a href="https://github.com/tmpmachine" "GitHub" ] . 
+    [a href="https://twitter.com/tmpmachine" "Twitter" ]
+  ]
+]
+</b:comment>

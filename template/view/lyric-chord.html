@@ -1,0 +1,210 @@
+<!-- this page specific style -->
+<style>
+  .post-body p:first-child:has(+a) {
+    display: none;
+  }
+  .post-body {
+    margin-top: 0
+  }
+</style>
+<style>
+  table[data-type="pre"] {
+    border: none!important;
+  }
+  table[data-type="pre"] pre {
+    margin:0!important;
+  }
+  
+  /* # modules override */
+  [data-type="chordyjs-v1"] td, [data-type="chordyjs-v1"] {
+    border: 0!important;
+    padding: 0!important;
+    font-size: 1rem;
+    line-height: 1.3rem;
+  }
+</style>
+
+
+<b:loop values='data:posts' var='post'>
+  
+  <b:if cond='data:post.labels any (l => l.name == "@mod-ch-v1")'>
+    <b:include name='@modules/chordyjs-v1'/>
+  </b:if>
+  
+  <!-- # meta description -->
+  
+  <!--<meta property='og:description' expr:content='data:post.snippets.short'/>-->
+  <!--<meta name='description' expr:content='data:post.snippets.short'/>-->
+  
+  <meta expr:content='data:post.author.name' name='author'/>
+  <meta name='description' expr:content='data:post.snippets.long'/>
+  <meta property='og:description' expr:content='data:post.snippets.long'/>
+  
+
+  <!-- # breadcrumbs -->
+  [ {mb:2rem}
+    <ol class='breadcrumbs'>
+      <b:if cond='data:post.labels any (l => l.name == "L1")'>
+        <li>
+          <a expr:href='data:blog.homepageUrl.canonical path "/search/label/L1" + (data:blog.isMobileRequest ? "?m=1" : "")'>Kartun Indonesia</a>
+        </li>
+      </b:if>
+      <li>
+        <data:post.title/>
+      </li>
+    </ol>
+  ]
+  <style>
+    /* breadcrumbs */
+    ol.breadcrumbs {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    .breadcrumbs li {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .breadcrumbs a {
+      text-decoration: none;
+      /*color: #1a70b5;*/
+    }
+    .breadcrumbs li:not(:last-child):after { 
+      content:'';
+      background-image: url("data:image/svg+xml;charset=UTF-8, %3csvg xmlns='http://www.w3.org/2000/svg' height='16px' viewBox='0 0 24 24' width='16px' fill='%23000000'%3e%3cpath d='M0 0h24v24H0z' fill='none'/%3e%3cpath d='M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z'/%3e%3c/svg%3e");
+      height: 16px;
+      width: 16px;
+    }
+    .breadcrumbs a:hover {
+      text-decoration: underline;
+    }
+    
+    /* dark theme */
+    html.--dark .breadcrumbs li:not(:last-child):after {
+      filter: invert(1);
+    }
+  </style>
+
+  <!-- # post content -->
+  [article
+      
+    <!-- # edit link -->
+    [ {mh:30px}
+      [ .item-control .blog-admin
+        <b:if cond='data:view.isPage'>
+          [a {fs:0.9rem;col:inherit} expr:href='"https://www.blogger.com/blog/page/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+        <b:else/>
+          [a {fs:0.9rem;col:inherit} expr:href='"https://www.blogger.com/blog/post/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+        </b:if>
+      ]
+    ]
+      
+    <!-- # song controls -->
+    [ {pb:1em;} {d:grid}  {cols:1fr auto}{justify-content:space-between}
+      [ {d:flex;align-items:center;gap:8px}
+        <b:if cond='data:post.labels none (l => l.name == "-no-transpose")'>
+    	  [l "Key :" {m:0}]
+    	  [select .custom-select {Mw:68px} @select-key {col:initial} onchange="chordy.transposer.transpose(Number(this.value), document.querySelectorAll('.post-body pre')[0])"
+    	    [opt value="0" "C"]
+    	    [opt value="1" "C#"]
+    	    [opt value="2" "D"]
+    	    [opt value="3" "Eb"]
+    	    [opt value="4" "E"]
+    	    [opt value="5" "F"]
+    	    [opt value="6" "F#"]
+    	    [opt value="7" "G"]
+    	    [opt value="8" "G#"]
+    	    [opt value="9" "A"]
+    	    [opt value="10" "Bb"]
+    	    [opt value="11" "B"]
+    	  ]
+        </b:if>
+      ]
+      [ 
+        [btn .pick-btn .feedback-btn onclick="openChord()" {col:initial}
+          <b:include name='@labels' data='{ key: "guitarChord" }'/>
+        ]
+      ]
+    ]
+    
+    [ .tool {mb:1rem}
+      [
+        [l .custom-control-label {cursor:pointer} .label-check
+          [in .custom-control-input type="checkbox" @in-tampilan] 
+          [l for="in-tampilan"
+            <b:include name='@labels' data='{ key: "showLyric" }'/>
+          ]
+        ]
+      ]
+      [ @awake-toggler {d:none}
+        [in type="checkbox" @in-toggle-awake]
+        [l "Keep screen awake" for="in-toggle-awake"]
+      ]
+    ]
+    
+    <div class="chord-modal">
+      <div class="chord-header">
+        <div>
+          <button onclick="closeChord()" style="cursor:pointer;border:0;display:flex;justify-content:center;align-items:center;padding:0.4rem;border-radius:50%"><span class="icon-close">×</span></button>
+        </div>
+      </div>
+      <div><div class="chords"></div></div>
+    </div>
+    
+    <script>  
+      
+      ;(function() {
+        
+        let $ = document.querySelectorAll.bind(document);
+        
+        $('#in-tampilan')[0].checked = Boolean(Number(localStorage.getItem('config-chordy-view')));
+        
+        function gantiTampilan() {
+          chordy.toggleLyric($('.post-body pre')[0], Number(this.checked));
+          localStorage.setItem('config-chordy-view', Number(this.checked));
+        }
+        
+        function changeFontSize(value) {
+          let template = document.querySelectorAll('template[name="chordy-font-style"]')[0].content.cloneNode(true);
+          let style = template.querySelectorAll('style')[0].innerHTML;
+          if (value == 'small')
+            style = style.replace('__size1__', '13').replace('__size2__', '14');
+          else if (value == 'medium')
+            style = style.replace('__size1__', '14').replace('__size2__', '15');
+          else if (value == 'large')
+            style = style.replace('__size1__', '15.5').replace('__size2__', '16.5');
+          document.querySelectorAll('style[name="chordy-font-size"]')[0].innerHTML = style;
+          chordy.resizeWrapper();
+          
+          document.querySelectorAll('#sel-font-size')[0].selectedIndex = ['small','medium','large'].indexOf(value);
+        }
+        
+        $('#in-tampilan')[0].addEventListener('change', gantiTampilan);
+          
+      })();
+      
+    </script>
+    
+    <!--post body-->
+    [ @chordy-container-width]
+    [ .post-body
+      <data:post.body/>
+    ]
+    
+  ]
+  
+  <!--post labels-->
+  [ {mt:2rem} {mb:4rem}
+    <b:include name='@view/post-labels' data='post'/>
+  ]
+  
+  
+  <!-- # blog modules -->
+  <b:include name='@modules/yt-iframe'/>
+  <b:if cond='data:post.labels none (l => l.name == "@mod-ch-v1")'>
+    <b:include name='@modules/chordy'/>
+  </b:if>
+  
+</b:loop>

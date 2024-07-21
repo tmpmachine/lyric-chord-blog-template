@@ -1,0 +1,22 @@
+<b:defaultmarkups><b:defaultmarkup type="Label">
+
+  <!-- main -->
+  <b:includable id="main" var="this">  
+  
+    <h2 class="Nzg2MjMyMg"><data:title/></h2>
+    <ul class="wgLabelsList d-flex gap-half flex-wrap justify-content-center">
+      <b:loop values='data:labels' var='label'>
+        <li>
+           <a expr:href='data:label.url'>
+              <data:label.name/>
+              <b:if cond='data:this.showFreqNumbers'>
+                <span class='label-count'><data:label.count/></span>
+              </b:if>
+           </a>
+        </li>
+      </b:loop>
+    </ul>
+  
+  </b:includable>
+  
+</b:defaultmarkup></b:defaultmarkups>

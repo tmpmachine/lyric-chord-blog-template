@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+  
+  <script src='https://pacolemon.web.app/blog-scripts/fretchart.min.js'></script>
+  <script>
+  //<![CDATA[
+  (function() {
+    let $ = document.querySelector.bind(document);
+    let version = Math.floor(1);
+    let templateId = `tabchord-v${version}`;
+    class CustomElement extends HTMLElement {
+      constructor() {
+        super();
+        this.rootTable = this.findRootTableNode();
+      }
+      
+      connectedCallback() {
+        let waitInterval = window.setInterval(() => {
+          if (this.rootTable === null) {
+            this.rootTable = this.findRootTableNode();
+          } else {
+            window.clearInterval(waitInterval);
+            this.hightlight();
+          }
+        }, 100);
+      }
+      
+      hightlight() {
+        // let pre = this.querySelectorAll('pre')[0];
+        
+        let guitar = new FretChart();
+        guitar.scale = 1.3;
+        guitar.setPalette({"fretboard":"#201e1e","fretMarker":"#c4c2c2","finger":"#ffffff","open":"#ffffff","nut":"#baae8f","special1":"#1e90ff","special2":"#ee82ee","fretNum":"#ffffff","fret":"#9f9d9d","fretShadow":"#564b4b","string":"#be907a","stringShadow":"#232020","string12":"#c0c0c0","string12Shadow":"#000","name":"#ffffff","circle":"#0d8115","circleText":"#ffffff"});
+      // guitar.setPalette({"fretboard":"#17161600","fretMarker":"#c4c2c2","finger":"#ffffff","open":"#f5f5f5","nut":"#dedede","special1":"#1e90ff","special2":"#ee82ee","fretNum":"#fafafa","fret":"#ffffff","fretShadow":"#ffffff","string":"#ffffff","stringShadow":"#ffffff","string12":"#ffffff","string12Shadow":"#ffffff","name":"#fcfcfc","circle":"#f0f0f0","circleText":"#1f1f1f"});
+         
+         
+         let selfNode = this;
+         let table = this.rootTable;
+        // console.log(table)
+         let pre = table.querySelector('[data-kind="chords"]')
+         let preTab = table.querySelector('[data-kind="tab"]')
+         
+         let data = JSON.parse(pre.textContent); 
+         
+            let partNode = document.createDocumentFragment();
+         let i = 0;
+         for (let part of data) {
+          let opt = document.createElement('button');
+          opt.innerHTML = part.name;
+          if (i === 0)
+            opt.classList.toggle('active', true);
+          opt.dataset.value = i;
+          // opt.value = i;
+          opt.addEventListener('click', changePart)
+          i++;
+          partNode.appendChild(opt)
+        }
+        let tabsNode = document.createElement('div');
+        tabsNode.classList.add(templateId+'-tabs');
+        // table.parentNode.insertBefore(tabsNode, table);
+        tabsNode.innerHTML = '';
+        tabsNode.append(partNode)
+        
+        
+        let container = $('#tmp-tabchord-v1').content.cloneNode(true);
+        container.querySelector('.toolbar').append(tabsNode);
+        
+        
+        
+         function changePart() {
+          let index = this.dataset.value;
+          for (let part of tabsNode.querySelectorAll('button')) {
+            part.classList.toggle('active', false);
+          }
+          this.classList.toggle('active', true);
+          
+          listChart(index);
+        }
+         
+          function listChart(partIndex) {
+            let chartList = document.createDocumentFragment();
+            for (let c of data[partIndex].chart) {
+              chartList.append(guitar.formula({fret:c.fret,finger:c.finger,name:c.name}))
+            }
+            
+            // selfNode.innerHTML = '';
+            // selfNode.append(chartList);
+            container.querySelector('.chords').append(chartList);
+          }
+        
+          container.querySelector('.tab').textContent = (preTab.textContent);
+          
+          listChart(0);
+        // this.rootTable.classList.toggle('visible', true);
+        
+        table.parentNode.insertBefore(container, table);
+        this.rootTable.remove();
+        
+      }
+      
+      findRootTableNode() {
+        let node = this;
+        let retry = 5;
+        while (node.parentNode && retry > 0) {
+          if (node.dataset.type == templateId) {
+            return node;
+          }
+          node = node.parentNode;
+          retry--;
+        }
+        return null;
+      }
+      
+    }
+    window.requestAnimationFrame(() => {
+      customElements.define(templateId, CustomElement);
+    })
+  })();
+  //]]>
+  </script>
+
+
+  <template id="tmp-tabchord-v1">
+    
+    [ .wg-tabchord-v1
+      [ .toolbar]
+      [ .chords]
+      [pre .tab]
+    ]
+    
+  </template>
+
+  <!--nodivless-->
+  <table border="1" cellpadding="0" cellspacing="0" data-type="tabchord-v1" style="width:-webkit-fill-available;">
+    <tbody><tr style="display:grid;overflow:auto;">
+      <td data-kind="chords" style="display:grid;padding:8px;overflow:auto;">
+        <pre style="margin:0;">[{"name":"intro","chart":[{"fret":"x35353","finger":"13141","name":"C7"}]}]</pre>
+      </td>
+    </tr>
+    <tr style="display:grid;overflow:auto;">
+      <td data-kind="tab" style="display:grid;padding:8px;overflow:auto;">
+        <pre style="margin:0;">
+     Dm7             G11      Gadd4/B    C      Gm   C(9)
+e|----------------8--/13------13p12------------------------
+B|---------8--10---------------------13--12/13-------------
+G|---9/10--------------------------------------------------
+D|---------------------------------------------------------
+A|---------------------------------------------------------
+E|---------------------------------------------------------
+        </pre>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:right;padding:4px 8px;">
+        <tabchord-v1>
+          <small>tabchord-v1</small>
+        </tabchord-v1>
+      </td>
+    </tr>
+  </tbody></table>
+  <!--/nodivless-->
+  
+  
+</body>
+</html>

@@ -1,0 +1,25 @@
+<style>
+  /* POST LABELS CHIP */
+  .post-labels a {
+    display: inline-block;
+    border: 1px solid #d7d7d7;
+    border-radius: 12px;
+    padding: 0.3rem 0.9rem;
+    font-size: 0.9rem;
+    transition: background 150ms;
+  }
+  .post-labels a:hover {
+    background: #f3f3f3;
+  }
+</style>
+
+<!-- # container labels -->
+[ .post-labels
+  <b:with var='filteredLabels' value='data:post.labels filter (label => !("!!" + label.name contains "!!@" OR "!!" + label.name contains "!!-"))'>
+    <b:loop values='data:filteredLabels where (l => l.name not in data:global.hiddenLabels)' var='label'>
+      [a expr:href='data:label.url'
+        <b:include name='label-alias'  data='{ name: data:label.name }'/>
+      ]
+    </b:loop>
+  </b:with>
+]

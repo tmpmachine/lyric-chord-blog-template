@@ -1,0 +1,19 @@
+{
+    "files": [
+    "/1.2x/js/blogfeeds.js",
+    "/1.2x/js/dom-events.js",
+    "/1.2x/js/blogsearch.js",
+    "/1.2x/js/spectable-v1-element.js",
+    "/1.2x/js/index.js",
+    "/1.2x/js/admin.js",
+    "/1.2x/js/ui.js",
+    "/1.2x/css/normalize.css",
+    "/1.2x/css/elements.css",
+    "/1.2x/css/theme.css",
+    "/1.2x/css/style.css",
+    "/1.2x/css/widgets.css"
+    ],
+    "local": [
+        "/pwa-cacher.js"
+    ]
+}

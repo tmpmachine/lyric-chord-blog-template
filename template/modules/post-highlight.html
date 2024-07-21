@@ -1,0 +1,86 @@
+<style>
+  table[data-type="post-highlight"]:not(.visible) {
+    visibility: hidden;
+  }
+  table[data-type="post-highlight"],table[data-type="post-highlight"] tr,table[data-type="post-highlight"] td {
+    border: 0;
+  }
+  table[data-type="post-highlight"] tr:nth-child(2) {
+      display: none;
+  }
+</style>
+
+<template id="tmp-post-highlight">
+  [
+    [a .title]
+  ]
+</template>
+
+<script>
+//<![CDATA[
+(function() {
+  let $ = (selector, node = document) => node.querySelectorAll(selector);
+  let templateId = `post-highlight`;
+  class CustomElement extends HTMLElement {
+    constructor() {
+      super();
+    }
+    
+    connectedCallback() {
+      window.setTimeout(() => {
+        this.rootTable = this.findRootTableNode();
+        this.hightlight();
+      });
+    }
+    
+    hightlight() {
+      let selfNode = this;
+      let feedId = this.textContent;
+      let rootTable = this.rootTable;
+      let component = this;
+
+      let template=function(){let n=document.querySelectorAll.bind(document),t=function(e,t=document){return t.querySelectorAll(e)};function l(e){return t(e,this)}return{clone:function(e){let t=n(e)[0].content.cloneNode(!0);return t.getChild=l,t}}}();
+
+      fetch('https://xmlexpr.blogspot.com/feeds/posts/summary/'+feedId+'?alt=json')
+      .then(function(result) { 
+        return result.json(); 
+      })
+      .then(function(feed) { 
+        
+        let title = feed.entry.title.$t;
+        let link = feed.entry.link.find(x => (x.rel == 'alternate')).href;
+        
+        let docFrag = document.createDocumentFragment();
+        let node = template.clone('#tmp-post-highlight')
+        
+        node.getChild('a')[0].textContent = title;
+        node.getChild('a')[0].href = link;
+        selfNode.innerHTML = '';
+        selfNode.append(node);
+        
+        rootTable.classList.toggle('visible', true);
+        
+      })
+      
+    }
+    
+    findRootTableNode() {
+      let node = this;
+      let retry = 5;
+      while (node.parentNode && retry > 0) {
+        if (node.dataset.type == templateId) {
+          return node;
+        }
+        node = node.parentNode;
+        retry--;
+      }
+      return null;
+    }
+    
+  }
+  window.requestAnimationFrame(() => {
+    customElements.define(templateId, CustomElement);
+  })
+})();
+//]]>
+</script>

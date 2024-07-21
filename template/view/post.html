@@ -1,0 +1,324 @@
+<b:loop values='data:posts' var='post'>
+  
+  <meta property='og:description' expr:content='data:post.snippets.short'/>
+  <meta name='description' expr:content='data:post.snippets.short'/>
+  <meta expr:content='data:post.author.name' name='author'/>
+
+  <b:if cond='data:post.labels any (l => l.name == "@mod-default")'>  
+    <b:include name='@modules/fretchart'/>
+    <b:include name='@modules/codeblock'/>
+    <b:include name='@modules/guitar-tab'/>
+    <b:include name='@modules/yt-iframe'/>
+  </b:if>
+  <!-- editorial page -->
+  <b:if cond='(data:view.isPage AND data:post.id == data:global.postIds.editorial) OR data:post.labels any (x => x.name == "mod-live-html")'>
+    <b:include name='@modules/live-html'/>
+    <b:include name='@modules/codeblock'/>
+  </b:if>
+  
+  <b:include name='@modules/pacolemon/yt-iframe-v2' 
+    cond='data:post.labels any (l => l.name == "@mod-yt-v2")'/>
+  
+  <!--post-->
+  [article
+    
+    <!-- post header -->
+    <b:with var='isGTutorial' value='data:post.labels any (x => x.name == "Guitar Tutorial")'>
+      <b:include name='@view/post-header-gt-tutorial' cond='data:isGTutorial'/>
+      <b:include name='@view/post-header' cond='!data:isGTutorial'/>
+    </b:with>
+    
+    
+    <b:if cond='data:post.labels any (l => l.name == "Working Draft")'>
+      <br/>
+      <div style="
+          background: black;
+          color: white;
+          padding: 1rem;
+          font-weight: bold;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 14px;
+          font-weight: normal;
+      "><span>This is a working draft post</span><div class="material material-icons" style="
+          color: yellow;
+          text-align: right;
+      ">warning</div> </div>
+    </b:if>
+    
+    <b:if cond='data:post.labels any (x => x.name == "use-toc")'>
+    [
+      [h1
+        Table of contents
+      ]
+      [ .js-toc]  
+    ]
+    </b:if>
+    
+    <!--post body-->
+    [ .post-body expr:data-labels='data:post.labels map label => label.name'
+      <data:post.body/>
+    ]
+    [ .void .void-1x]
+    [ .void .void-2x]
+    
+    <!-- post footer -->
+    
+    <!-- # foot date -->
+    [ {fs:0.9rem} .opacity-75 .wg-FootPostDate .d-flex .flex-column .gap-half
+      [
+        Published on <b:eval expr='data:post.date format "MMMM d, YYY"'/>
+      ]
+      <b:if cond='data:post.date != data:post.lastUpdated'>
+        [ 
+          Last updated on <b:eval expr='data:post.lastUpdated format "MMMM d, YYY"'/>
+        ]
+      </b:if>
+    ]
+    
+    
+  <!-- end of post -->
+  ]
+  
+  <!--post labels-->
+  [ {mt:2rem} {mb:4rem}
+    <b:include name='@view/post-labels' data='post'/>
+  ]
+  
+  <!-- CTA -->
+  [ {m:1rem 0 3rem} .text-center
+    [a href='https://www.youtube.com/tmpmachine7' 'Visit tmpcafe YouTube Channel' {td:underline}]
+  ]
+  
+  
+  <!--post comments-->
+  <b:if cond='!(data:view.url.raw contains "p/editorial.html")'>
+  
+    [ {m:2rem 0} 
+      [h2
+        Checkout Other Posts
+      ]
+      [ .tmp-feed-container
+        Loading ...
+      ]
+    ]
+    
+    <style>
+      .tmp-feed-container a {
+        display: inline-block;
+        padding: 8px 0;
+        display: flex;
+        gap: 12px;
+      }
+      .tmp-feed-container .thumbnail {
+          height: 64px;
+          width: 64px;
+          background-size: cover;
+          background-position: center;
+      }
+      .tmp-feed-container .thumbnail.hidden {
+        display: none;
+      }
+    </style>
+    
+    <template id="tmp-related-posts">
+      [
+        [a href='#'
+          [ .thumbnail]
+          [s .title]
+        ]
+      ]
+    </template>
+    
+    <script>
+      //<![CDATA[
+      
+      
+      BloggerRelatedPosts('.tmp-feed-container')
+      
+      function BloggerRelatedPosts(selector) {
+        
+        let $ = document.querySelectorAll.bind(document);
+        
+        let label = pickRandomLabel();
+        
+        if (label == '') {
+          return;
+        }
+        
+        function pickRandomLabel() {
+          
+          let postLabels = JSON.parse($('.post-body')[0].dataset.labels);
+          let excludeLabels = JSON.parse(document.head.dataset.hiddenLabels);
+          
+          for (let i = 0; i < postLabels.length; i++) {
+            if (excludeLabels.includes(postLabels[i])) {
+              postLabels.splice(i, 1);
+              i--;
+            }
+          }
+          
+          if (postLabels.length > 0) {
+            let pickIndex = generateRandomInteger(0, postLabels.length-1);
+            return postLabels[pickIndex];
+          }
+          
+          return '';
+          
+        }
+        
+        function generateRandomInteger(min, max) {
+          return Math.floor(min + Math.random()*(max - min + 1))
+        }
+          
+        
+        fetch('https://www.blogger.com/feeds/7950036845458384005/posts/summary/-/'+label+'?alt=json&max-results=0')
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(result) {
+          
+          let totalPosts = Number(result.feed.openSearch$totalResults.$t);
+          let feedCount = 5;
+          
+          let startIndex = generateRandomInteger(1, Math.max(1, totalPosts - feedCount));
+          requestFeed(startIndex);
+            
+        });
+        
+        function requestFeed(startIndex) {
+          fetch('https://www.blogger.com/feeds/7950036845458384005/posts/summary/-/'+label+'?alt=json&max-results=5&start-index='+startIndex)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(result) {
+            showFeeds(result.feed.entry)
+          });
+        }
+        
+        function showFeeds(entries) {
+          
+          let container = document.createDocumentFragment();
+              
+          for (let item of entries) {
+             let thumbnail = '';
+             if (item.media$thumbnail) {
+               thumbnail = item.media$thumbnail.url;
+             }
+           
+            let tmp = template.clone('#tmp-related-posts');
+            let node = tmp.getChild('.title')[0];
+            node.textContent = item.title.$t;
+            tmp.getChild('a')[0].href = item.link.find(x => x.rel == 'alternate').href;
+            let thumbnailNode = tmp.getChild('.thumbnail')[0];
+            if (thumbnail == '') {
+              thumbnailNode.classList.toggle('hidden', true);
+            }
+            thumbnailNode.style.background = 'url('+thumbnail+')';
+            container.append(tmp);
+          }
+          
+          $(selector)[0].innerHTML = '';
+          $(selector)[0].append(container);
+        }  
+        
+      }
+      
+      
+      window.template = (function() {
+      
+        let $ = document.querySelectorAll.bind(document);
+        let child = function(selector, node=document) { return node.querySelectorAll(selector); }
+        
+        function getChild(selector) {
+          let nodes = child(selector, this);
+          return nodes;
+        }
+        
+        function clone(selector) {
+          
+          let node = $(selector)[0].content.cloneNode(true);
+          node.getChild = getChild;
+          return node;
+        }
+        
+        return {
+          clone,
+        };
+        
+      })();
+      
+      //]]>
+    </script>
+  
+  </b:if>
+  
+  
+  [ .container]
+
+
+
+
+
+
+  
+  [ {ta:center} {m:2rem 0}
+  
+    <b:if cond='data:global.state.showAds'>
+      
+      <script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1854718205178548" crossorigin="anonymous"></script>
+      <!-- TMPCafe - Horizontal Responsive -->
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-1854718205178548"
+           data-ad-slot="4679958295"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+           (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+      
+    </b:if>
+  ]
+  
+  <b:if cond='!(data:view.url.raw contains "p/editorial.html")'>
+    <!--post comments-->
+    [ .wg-Comments
+      <b:include name='commentPicker' data='post'/>
+    ]
+  </b:if>
+  
+</b:loop>
+
+
+
+<b:if cond='data:post.labels any (x => x.name == "use-toc")'>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.11.1/tocbot.min.js"></script>
+  <style>
+    .toc-404 {
+      opacity: 0.7;
+      cursor: n;
+    }
+  </style>
+  <script>
+    for (let node of document.querySelectorAll('.post-body > h1')) {
+      node.setAttribute('id', node.textContent.trim().replace(/ /g,'-').toLowerCase())
+    }
+    
+    tocbot.init({
+      tocSelector: '.js-toc',
+      contentSelector: '.post-body',
+      headingSelector: 'h1, h2, h3',
+      hasInnerContainers: false,
+    });
+    
+    for (let node of document.querySelectorAll('.toc-list-item > a')) {
+      if (node.getAttribute('href') == '#') {
+          node.parentNode.classList.add('toc-404')
+      }
+    }
+  </script>
+  
+</b:if>

@@ -1,0 +1,27 @@
+{
+    "css": {
+      "path": "/music-blog-template/assets/css",
+      "files": [
+        "/normalize.css",
+        "/elements.css",
+        "/theme.css",
+        "/style.css",
+        "/widgets.css"
+      ]
+    },
+    "js": {
+      "path": "/music-blog-template/assets/js",
+      "files": [
+        "/blogfeeds.js",
+        "/dom-events.js",
+        "/blogsearch.js",
+        "/spectable-v1-element.js",
+        "/index.js",
+        "/admin.js",
+        "/ui.js"
+      ]
+    },
+    "local": [
+      "/pwa-cacher.js"
+    ]
+}

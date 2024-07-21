@@ -1,0 +1,70 @@
+<b:defaultmarkups><b:defaultmarkup type="LinkList">
+
+  <!-- main -->
+  <b:includable id="main" var="this">  
+    <b:include name="topNavLinks" cond='data:widget.sectionId == "Nav"'/>
+    <b:include name="footerLinks" cond='data:widget.sectionId == "FooterLinks"'/>
+    <b:include name="bottomLinks" cond='data:widget.sectionId == "BottomLinks"'/>
+    <b:include name="default" cond='data:widget.sectionId not in {"Nav", "FooterLinks", "BottomLinks"}'/>
+  </b:includable>
+    
+  <!---->
+  <b:includable id="default">
+    <ul>
+      <b:loop values="data:links" var="link">
+        <li>
+            <a expr:href="data:link.target">
+              <data:link.name/>
+            </a>
+        </li>
+      </b:loop>
+    </ul>
+  </b:includable>
+
+  <!---->
+  <b:includable id="footerLinks">
+    <div class="wgLinkListFooter">
+        <h2 class="Nzg2MjMyMg"><data:title/></h2>
+        <ul class="d-flex flex-col gap-half">
+          <b:loop values="data:links" var="link">
+            <li>
+                <a expr:href="data:link.target">
+                  <data:link.name/>
+                </a>
+            </li>
+          </b:loop>
+        </ul>
+     </div>
+  </b:includable>
+  
+  <!---->
+  <b:includable id="bottomLinks">
+    <ul class="wgLinkListDefault">
+      <b:loop values="data:links" var="link">
+        <li>
+            <a expr:href="data:link.target">
+              <data:link.name/>
+            </a>
+        </li>
+      </b:loop>
+    </ul>
+  </b:includable>
+  
+  <!---->
+  <b:includable id="topNavLinks">
+    
+    <div class="wgLinkList">
+      <ul class="d-flex flex-column gap-full align-items-center">
+         <b:loop values="data:links" var="link">
+          <li>
+              <a expr:href="data:link.target">
+                <data:link.name/>
+              </a>
+          </li>
+        </b:loop>
+      </ul>
+   </div>
+
+  </b:includable> 
+  
+</b:defaultmarkup></b:defaultmarkups>
