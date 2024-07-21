@@ -21,6 +21,8 @@ let compoMain = (function() {
     });
     search.init();
     
+    ui.Init();
+    
   }
   
   return SELF;

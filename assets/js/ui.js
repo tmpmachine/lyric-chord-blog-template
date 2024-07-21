@@ -2,7 +2,12 @@ let ui = (function() {
   
   let SELF = {
     SharePost,
+    Init,
   };
+  
+  function Init() {
+    uiSong.Init();
+  }
   
   function SharePost() {
     let postTitle = document.title;

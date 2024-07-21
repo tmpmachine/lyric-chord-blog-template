@@ -1,6 +1,13 @@
 <b:defaultmarkups>
 <b:defaultmarkup type="Blog">
 
+  <!-- # main -->
+  <b:includable id="main" var="this">  
+    <b:include cond="data:view.isMultipleItems" name="multipleItemsView"/>
+    <!--<b:include cond="data:view.isSingleItem" name="singleItemView"/>-->
+    <b:include cond="data:view.isSingleItem" name="singleItemViewSong"/>
+  </b:includable>
+
   <!-- # multiple items view, # home -->
   <b:includable id="multipleItemsView">
     
@@ -111,10 +118,332 @@
     
   </b:includable>
   
-  <!-- # main -->
-  <b:includable id="main" var="this">  
-    <b:include cond="data:view.isMultipleItems" name="multipleItemsView"/>
-    <b:include cond="data:view.isSingleItem" name="singleItemView"/>
+  <!-- # single item view, # post -->
+  <b:includable id="singleItemViewSong">
+    <b:loop values="data:posts" var="post">
+
+      <article>
+      <div class="wg-Post NDM4MDg3Mw no---thumbnail no---body">
+          <!-- ## post template -->
+          <!-- # edit link -->
+          [ .edit-link
+            [ .item-control .blog-admin
+                <b:if cond='data:view.isPage'>
+                  [a expr:href='"https://www.blogger.com/blog/page/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+                <b:else/>
+                  [a expr:href='"https://www.blogger.com/blog/post/edit/" + data:blog.blogId + "/" + data:post.id' "Edit this post"]
+                </b:if>
+            ]
+          ]
+          <div class="NDQyMDQ5MQ d-flex gap-full justify-content-betweem">
+              <div class="NDQyMDYxNQ">
+                  <h2 class="NDM4MDkwNQ">
+                      <!-- # title (single) -->
+                      <b:if cond="data:view.isSingleItem">
+                        <data:post.title/>
+                      <b:else/>
+                        <a class="NDQxNTM4Mw" expr:href="data:post.url">
+                          <data:post.title/>
+                        </a>
+                      </b:if>
+                  </h2>
+                  <div class="void void-quarter"></div>
+                  
+                  <!--# songStaticToolbar--><b:comment render="true"># songStaticToolbar</b:comment>
+                  [ .wg-SongStaticToolbar .d-flex .justify-content-between
+                    
+                    <!-- _left-->
+                    [ .d-flex .gap-full
+                      <!-- # song view -->
+                      [
+                        [l "Tampilan"]
+                        [ .void .void-quarter]
+                        [ .custom-control .custom-checkbox .py-2
+                          [l .custom-control-label {cursor:pointer} .label-check
+                            [in .custom-control-input type="checkbox" #in-tampilan] Lirik saja
+                          ]
+                        ]
+                      ]
+                      <!-- # font size module -->
+                      [ 
+                        [l 'Ukuran Teks']
+                        [ .void .void-quarter]
+                        [sel data-onchange="change-font-size" #sel-font-size .custom-select {w:80px} ._inSongFontSize
+                          <option value="small">Kecil</option>
+                          <option selected="selected" value="medium">Sedang</option>
+                          <option value="large">Besar</option>
+                        ]
+                      ]
+                    ]
+                    <!-- _left-->
+                    
+                    [
+                      <!-- # song bookmark buttons -->
+                      [l .bookmark .btn-bookmark-entry
+                        [in type="checkbox" expr:value="data:post.id" expr:data-title="data:post.title" expr:data-key=' ( data:post.labels first (l => l.name contains "key-") ).name' expr:data-link="data:post.url"]
+                        [ .bookmark-icon]
+                      ]
+                    ]
+                    
+                  ]
+                  
+                  <!--# songToolbar--><b:comment render='true'># songToolbar</b:comment>
+                  [ .wg-SongToolbar
+                    
+                    [ .inner .d-flex .gap-full
+                      
+                      <!-- _left # --><b:comment render='true'> _left # </b:comment>
+                      [ .flex-1 .d-flex .gap-full .align-items-center
+                        <!-- # transposer -->
+                        [ 
+                          [l .d-flex .gap-half .align-items-center
+                            [s 'Key :' .text-wrap-nowrap]
+                            [select .custom-select {Mw:68px} ._inSelTransposeKey #select-key data-onchange="change-song-key"
+                              [opt value="0" "C"]
+                              [opt value="1" "C#"]
+                              [opt value="2" "D"]
+                              [opt value="3" "Eb"]
+                              [opt value="4" "E"]
+                              [opt value="5" "F"]
+                              [opt value="6" "F#"]
+                              [opt value="7" "G"]
+                              [opt value="8" "G#"]
+                              [opt value="9" "A"]
+                              [opt value="10" "Bb"]
+                              [opt value="11" "B"]
+                            ]
+                          ]
+                        ]
+                        
+                        <!-- # toggler gitar --><b:comment render='true'> # toggler gitar </b:comment>
+                        [ 
+                          <button class="pick-btn feedback-btn" onclick="toggleChordHelper()">Chord <span class="custom-icon icon-help" style="width:24px;height:24px;"></span></button>
+                        ]
+                      ]
+                      <!-- _left --><b:comment render='true'> _left </b:comment>
+                      
+                      <!-- $right # --><b:comment render='true'> $right # </b:comment>
+                      [ .d-flex .align-items-center
+                        <!-- # awake module -->
+                        [ 
+                          [l for="awake-toggler"
+                            [small 'Screen On']
+                          ]
+                          [ .void .void-quarter]
+                          <label class="switch">
+                            <input type="checkbox" onchange="toggleAwake(this)" id="awake-toggler"/>
+                            [s .slider .round .btn-outline-primary]
+                          </label>
+                        ]
+                        [small @label-module-awake .obsoletes]
+                      ]
+                      <!-- $right-->
+                    
+                    ]
+                    
+                    <!--# chord helper--><b:comment render='true'># chord helper</b:comment>
+                    [ data-id="wg-ChordHelper" .wg-ChordHelper
+                      [ .content .chords]
+                      [ .toggler onclick="toggleChordHelper()"
+                        [btn .line]
+                      ]
+                    ]
+                      
+                  ]
+                  [ .void .void-full]
+                  
+                  
+                  <!--# aransemen toolbar--><b:comment render='true'># aransemen toolbar</b:comment>
+                  [ .d-flex .justify-content-between {mb:1rem}
+                    [
+                      Aransemen 
+                      [sel #js-sel-arrangements onchange="compoSongEditor.changeArrange(this.value)" {Mw:170px}
+                        [opt value='-1' 'Versi 1']
+                      ]
+                    ]
+                    [
+                      [btn 'Edit Lagu' onclick='compoSongEditor.editLagu()' @js-btn-edit-lagu disabled='disabled']
+                    ]
+                  ]
+                  
+              </div>
+              
+          </div>
+          <div class="NDM4MDkxMQ">
+              <div class="void void-2x"></div>
+              
+              <!--# postContent --><b:comment render='true'># postContent </b:comment>
+              <section data-view-group="songView" data-view-states="lyricChord">
+                
+                <!--# chordy width sizer--><b:comment render='true'># chordy width sizer</b:comment>
+                [ #chordy-container-width]
+                
+                <!--# widget song editor--><b:comment render='true'># widget song editor</b:comment>
+                <section data-view-group="songView" data-view-name="editor">
+                [ .wg-SongEditor 
+                  
+                  <!-- # fitur aransemen -->
+                  [ @js-feature-aransemen
+                    [ @js-container-simpan-lagu {d:none}
+                      [ {p:0.5rem 0 0.75rem}
+                        [a target='_blank' href='https://bukupujian2.blogspot.com/2023/02/panduan-penulisan-aransemen.html' 'Panduan Penulisan Aransemen']
+                      ]
+                      [ 
+                        [ .d-flex .justify-content-between
+                          [
+                            [ .js-container-hapus-versi {d:none}
+                              [btn 'Hapus' onclick='compoSongEditor.hapusVersi()']
+                            ]
+                          ]
+                          [
+                            [btn 'Batal' onclick='compoSongEditor.tutupPanelSimpan()']
+                            [btn 'Simpan Baru' onclick='compoSongEditor.simpanBaruLagu()']
+                            [btn 'Simpan' onclick='compoSongEditor.simpanLagu()' @js-btn-simpan]
+                          ]
+                        ]
+                        [ .spy-1]
+                        [
+                          Editor : 
+                          [sel onchange='compoSongEditor.changeEditor(this.value)' @js-prefered-editor
+                            [opt 'ACE' value='ace']
+                            [opt 'Classic' value='classic']
+                          ]
+                        ]
+                        
+                      ]
+                    ]
+                  ]
+                  
+                  [ .text-center @js-editor-lagu-loader {d:none}
+                    [p 'Sedang memuat, harap tunggu ...']
+                  ]
+                  [ .spy-1]
+                  
+                  [ @js-in-edit-lagu-ace {d:none} {bor:1px dashed #bbbbbb}]
+                  [pre @js-in-edit-lagu {d:none} contenteditable='true' {bor:1px dashed #bbbbbb} {p:0.3rem} {m:0}]
+                  
+                  <!-- #END fitur aransemen-->
+                ]
+                </section>
+                
+                <!--# post body: song--><b:comment render='true'># post body: song</b:comment>
+                [ .wg-SongWrapper
+                  
+                  [in type="hidden" expr:value="data:post.title.jsEscaped" ._inHiddenPostTitle]
+                  [in type="hidden" expr:value="data:post.url" ._inHiddenPostUrl]
+                  
+                  [ .post-body data-view-group="songView" data-view-name="lyricChord" ._postBody
+                    <b:loop values='data:posts' var='post'>
+                      <data:post.body/>
+                    </b:loop>
+                  ]
+                ]
+                
+              </section>
+              
+              <div class="void void-2x"></div>
+              
+              
+              <!--# gallery--><b:comment render='true'># gallery</b:comment>
+              <section>
+                [ .wg-YtGallery
+                  [ .inner #youtube-gallery-grid]
+                ]
+              </section>
+              [ .void .void-full]  
+              [ .void .void-full]  
+              [ .void .void-full]  
+              
+              
+              <!--# after posts CTA--><b:comment render='true'># after posts CTA</b:comment>
+              <section>
+              
+                <!--# share link--><b:comment render='true'># share link</b:comment>
+                [ .share-link
+                  <button class="share-button" href="https://bukupujian2.blogspot.com/p/request.html" style="display: inline-block;padding: 8px;display: flex;align-items: center;gap: 8px;border: none;" data-onclick="share-post">
+                    <span class='bp-share-txt'>Share</span> <span class="share-icon" style="font-size: 24px;width:24px;height:24px;" ></span>
+                  </button>
+                ]
+              
+                <!--# song download--><b:comment render='true'># song download</b:comment>
+                [btn "Download Teks" .d-block .btn .btn-outline-primary @btn-download-teks {m:1rem 0} {p:4px 6px}]
+                [ .custom-control .custom-checkbox .py-2
+                  [l .custom-control-label  {cursor:pointer} .label-check
+                    [in .custom-control-input type="checkbox" @in-kapital] Gunakan huruf kapital
+                  ]
+                ]
+              </section>
+              [ .void .void-full]
+              
+              <!-- # labels --><b:comment render='true'> # labels </b:comment>
+              <section>
+              
+                <b:with var='filteredLabels' value='data:post.labels where (label => label.name not in {"song", "-sd", "-vc", "-ic", "-icp", "-icw", "-r", "-mar", "-up", "categorized", "has-video"} AND label.name not contains "key-")'>
+                      
+                    <b:if cond='data:filteredLabels.length > 0'>          	
+                      
+                      <div class="label-container">
+                      [ .d-flex .justify-content-between .align-items-center
+                	      <h2 class="kategori-header">Label</h2>
+                	      [ .obsoletes
+                	        [btn '+ Sarankan Label' .clickable data-callback='send-saran-label' {p:4px 6px}]
+                	        [ {ta:right}
+                	          [small @js-txt-saran-info]
+                	        ]
+                	      ]
+                      ]
+                	    [ .post-labels {d:flex;gap:16px} {flex-wrap:wrap}
+                      
+                        <b:loop var='label' values='data:filteredLabels'>
+                          
+                          <a class="label" expr:href='data:label.url.canonical + (data:blog.isMobileRequest ? "?m=1" : "")'>
+                            <b:include name='label-name'  data='{ name: data:label.name }'/>
+                          </a>
+                          
+              	        </b:loop>
+                    
+                        [ .obsoletes
+                          <a class='label' href='/p/daftar-label.html' style="border:0;">Daftar label ></a>
+                        ]
+                    
+                	    ]
+              
+                    </div>
+                    
+                  </b:if>
+                    
+                </b:with>
+                <!-- #END labels -->
+              
+              </section>
+              [ .void .void-full]  
+              [ .void .void-full]  
+
+              
+              
+          </div>
+          <div class="NDM4OTA0Mg">
+              <div class="void void-2x"></div>
+              <div class="NDM4ODQwNQ d-flex flex-column align-items-end">
+                  <!-- ## post separator -->
+                  <div class="NDM5NjYwMQ"></div>
+                  <div class="NDM4ODQzNQ"></div>
+              </div>
+              <div class="void void-2x"></div>
+          </div>
+      </div>
+      </article>
+
+      [ .wg-CommentThread
+        <b:include name="commentPicker" data="post"/>
+      ]
+      
+    </b:loop>  
+  
+    <!-- # pagination -->
+    <!--<b:include name='post-navigation'/>-->
+    
+    
   </b:includable>
     
   <b:includable id='post-navigation'>

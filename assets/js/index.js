@@ -5,6 +5,9 @@ import { loadScripts } from './script-loader.js';
   loadScripts([
     {
       urls: [
+        "/lib/chordy.min.js",
+        "/uis/song-ui.js",
+        "/ui.js",
         "/utils/blogfeeds.js",
         "/utils/blogsearch.js",
         "/main-component.js",
